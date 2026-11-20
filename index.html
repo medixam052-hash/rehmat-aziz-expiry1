@@ -7,388 +7,312 @@
 <title>Rehmat Aziz Medicine - Expiry System</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#eff7f1;font-family:Arial,sans-serif;color:#173b2b}
-header{background:#087b43;color:white;text-align:center;padding:22px 12px}
+body{margin:0;background:#f2f6f3;color:#222;font-family:Arial,sans-serif}
+header{background:#087b43;color:white;text-align:center;padding:20px 10px}
 header h2{margin:0 0 8px}
-header p{margin:5px;font-size:13px}
-nav{display:flex;flex-wrap:wrap;gap:7px;padding:12px;background:white;position:sticky;top:0;z-index:5}
-button{border:0;border-radius:7px;padding:11px;background:#087b43;color:white;font-weight:bold;cursor:pointer}
-nav button{flex:1;min-width:95px}
-main{padding:13px;max-width:1000px;margin:auto}
-.panel{background:white;padding:15px;border-radius:12px;margin-bottom:14px;box-shadow:0 2px 8px #0001}
-h3{color:#087b43;margin-top:0}
-input,select{width:100%;padding:12px;margin:6px 0 12px;border:1px solid #cbd8ce;border-radius:7px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.stat{background:#e0f2e6;padding:15px;border-radius:9px;text-align:center}
-.stat strong{display:block;font-size:25px;color:#087b43;margin-top:7px}
-.tablewrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th,td{padding:9px;border:1px solid #ddd;text-align:left}
+header p{margin:4px;font-size:13px}
+nav{display:flex;justify-content:center;flex-wrap:wrap;background:#075c35}
+nav button{background:transparent;color:white;border:0;padding:14px 16px;cursor:pointer}
+nav button:hover{background:#087b43}
+.container{max-width:1100px;margin:auto;padding:14px}
+.section{display:none}
+.section.active{display:block}
+h3{color:#087b43}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:12px;margin:15px 0}
+.card{background:white;padding:16px 8px;border-radius:9px;text-align:center;border-left:5px solid #087b43;box-shadow:0 2px 7px #0001}
+.card p{font-size:13px;margin:0}
+.card h2{color:#087b43;margin:8px 0;font-size:25px}
+form,.panel{background:white;padding:16px;border-radius:9px;margin:14px 0;box-shadow:0 2px 7px #0001}
+label{display:block;font-weight:bold;margin:12px 0 5px}
+input,select{width:100%;padding:12px;border:1px solid #ccc;border-radius:6px;font-size:15px}
+button{background:#087b43;color:white;border:0;border-radius:6px;padding:11px 14px;margin:4px 2px;cursor:pointer}
+.whatsapp{background:#168b45}
+.blue{background:#1769aa}
+.gray{background:#555}
+.table-wrap{overflow-x:auto;margin:12px 0}
+table{width:100%;min-width:700px;border-collapse:collapse;background:white}
+th,td{border:1px solid #ddd;padding:10px;text-align:left;font-size:13px}
 th{background:#087b43;color:white}
-.expired{background:#ffdede}
-.warning{background:#fff0c2}
-.safe{background:#e0f5e5}
-.hidden{display:none}
-.danger{background:#bd2929}
-.small{font-size:12px;color:#667}
-footer{background:#075c36;color:white;text-align:center;padding:22px 10px;margin-top:25px}
-footer h3{color:white}
-footer p{margin:7px}
-footer a{color:white}
-@media print{
-nav,button,.no-print{display:none!important}
-body{background:white}
-.panel{box-shadow:none}
-}
+.status{font-weight:bold;padding:5px 8px;border-radius:5px;display:inline-block}
+.expired{background:#ffd7d7;color:#b00000}
+.warning{background:#fff0b3;color:#805900}
+.safe{background:#d4f5dc;color:#087b43}
+.current{background:#d7eaff;color:#0755a0}
+.empty{text-align:center;color:#777;padding:18px}
+footer{background:#075c35;color:white;text-align:center;padding:18px;margin-top:25px;font-size:13px;line-height:1.8}
+@media(max-width:500px){nav button{padding:12px 9px;font-size:12px}}
+@media print{nav,form,.no-print,footer{display:none!important}.section{display:block!important}.panel{box-shadow:none}}
 </style>
 </head>
 <body>
 
 <header>
 <h2>REHMAT AZIZ MEDICINE</h2>
+<p>Medicine Expiry Management System</p>
 <p>7-City Centre, Rahim Yar Khan</p>
-<p>Phone: 0333-6303774</p>
-<p>Medicine Stock & Expiry Management System</p>
+<p>Contact: 0333-6303774</p>
 </header>
 
 <nav>
 <button onclick="show('dashboard')">Dashboard</button>
 <button onclick="show('add')">Add Medicine</button>
-<button onclick="show('stock')">Stock Records</button>
 <button onclick="show('reports')">Reports</button>
 </nav>
 
-<main>
+<div class="container">
 
-<section id="dashboard">
-<div class="panel">
-<h3>Dashboard</h3>
-<div class="grid">
-<div class="stat">Total Medicines<strong id="total">0</strong></div>
-<div class="stat">Expired<strong id="expiredCount">0</strong></div>
-<div class="stat">Expiring Soon<strong id="soon">0</strong></div>
-<div class="stat">Total Quantity<strong id="quantity">0</strong></div>
+<section id="dashboard" class="section active">
+<h3>Expiry Dashboard</h3>
+<div class="cards">
+<div class="card"><p>Total Records</p><h2 id="total">0</h2></div>
+<div class="card"><p>Expired Records</p><h2 id="expiredCount">0</h2></div>
+<div class="card"><p>Expiring Soon</p><h2 id="soonCount">0</h2></div>
+<div class="card"><p>Current Month</p><h2 id="currentCount">0</h2></div>
+<div class="card"><p>Total Expiry Quantity</p><h2 id="totalQty">0</h2></div>
+<div class="card"><p>Expired Quantity</p><h2 id="expiredQty">0</h2></div>
 </div>
+
+<div class="no-print">
+<button class="whatsapp" onclick="shareWhatsApp()">WhatsApp Full Report</button>
+<button onclick="show('reports')">View All Reports</button>
 </div>
 
 <div class="panel">
 <h3>Expiry Alerts</h3>
-<div class="tablewrap">
+<div class="table-wrap">
 <table>
-<thead>
-<tr>
-<th>Medicine</th>
-<th>Company</th>
-<th>Batch</th>
-<th>Expiry</th>
-<th>Qty</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody id="alerts"></tbody>
+<thead><tr><th>Medicine</th><th>Company</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Status</th></tr></thead>
+<tbody id="alertsTable"></tbody>
+</table>
+</div>
+</div>
+
+<div class="panel">
+<h3 style="color:#c00000">Expired Records</h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Medicine</th><th>Company</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Status</th></tr></thead>
+<tbody id="expiredTable"></tbody>
 </table>
 </div>
 </div>
 </section>
 
-<section id="add" class="hidden">
-<div class="panel">
-<h3>Add Medicine Record</h3>
-<form id="medicineForm">
-
+<section id="add" class="section">
+<h3>Add Expiry Record</h3>
+<form id="expiryForm">
 <label>Medicine Name</label>
-<input id="name" required placeholder="Medicine name">
+<input id="medicine" required placeholder="Medicine name">
 
 <label>Company / Manufacturer</label>
 <input id="company" required placeholder="Company name">
 
 <label>Batch Number</label>
-<input id="batch" placeholder="Batch number">
-
-<label>Quantity</label>
-<input id="qty" type="number" min="0" required placeholder="Quantity">
+<input id="batch" required placeholder="Batch number">
 
 <label>Expiry Date</label>
-<input id="expiry" type="date" required>
+<input type="date" id="expiry" required>
 
-<label>Purchase Price</label>
-<input id="price" type="number" min="0" step="0.01" placeholder="Optional">
+<label>Expiry Quantity</label>
+<input type="number" id="qty" min="1" required placeholder="Quantity">
 
 <label>Staff Name</label>
 <select id="staff">
 <option>Owner</option>
-<option>Morning Staff 1</option>
-<option>Morning Staff 2</option>
-<option>Evening Staff 1</option>
-<option>Evening Staff 2</option>
+<option>Staff 1</option>
+<option>Staff 2</option>
 </select>
 
-<button type="submit">Save Medicine</button>
+<button type="submit">Save Expiry Record</button>
 </form>
-</div>
 </section>
 
-<section id="stock" class="hidden">
+<section id="reports" class="section">
+<h3>Expiry Reports</h3>
 <div class="panel">
-<h3>Stock Records</h3>
-<input id="search" placeholder="Search medicine, batch or company..." oninput="render()">
-
-<div class="tablewrap">
-<table>
-<thead>
-<tr>
-<th>Medicine</th>
-<th>Company</th>
-<th>Batch</th>
-<th>Qty</th>
-<th>Expiry</th>
-<th>Status</th>
-<th class="no-print">Action</th>
-</tr>
-</thead>
-<tbody id="records"></tbody>
-</table>
-</div>
-</div>
-</section>
-
-<section id="reports" class="hidden">
-<div class="panel">
-<h3>Company Wise Reports</h3>
-
-<label>Select Company</label>
-<select id="companyFilter" onchange="render()">
-<option value="">All Companies</option>
+<label>Company Filter</label>
+<select id="companyFilter" onchange="renderReports()">
+<option value="All">All Companies</option>
 </select>
-
-<button onclick="window.print()">Print Report</button>
-<button onclick="exportCSV()">Download Excel CSV</button>
-
-<div class="tablewrap" style="margin-top:15px">
-<table>
-<thead>
-<tr>
-<th>Medicine</th>
-<th>Company</th>
-<th>Batch</th>
-<th>Quantity</th>
-<th>Expiry</th>
-<th>Staff</th>
-</tr>
-</thead>
-<tbody id="reportRows"></tbody>
-</table>
+<div class="no-print">
+<button class="blue" onclick="window.print()">Print Report</button>
+<button class="gray" onclick="downloadCSV()">Download CSV</button>
+<button class="whatsapp" onclick="shareWhatsApp()">WhatsApp Report</button>
 </div>
+</div>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Medicine</th><th>Company</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Staff</th><th>Status</th></tr></thead>
+<tbody id="reportsTable"></tbody>
+</table>
 </div>
 </section>
 
-<div class="panel small">
-<strong>Important:</strong> Records are saved in this browser on this device. Export a CSV backup regularly. Clearing browser data may remove saved records.
 </div>
-
-</main>
 
 <footer>
-<h3>REHMAT AZIZ MEDICINE</h3>
-<p>7-City Centre, Rahim Yar Khan</p>
-<p>Contact: 0333-6303774</p>
-<hr>
-<p>Developed By</p>
-<h3>Sher Usama Ch</h3>
-<p>Developer Contact: 03183410979</p>
-<p>© 2026 All Rights Reserved</p>
+<strong>REHMAT AZIZ MEDICINE</strong><br>
+7-City Centre, Rahim Yar Khan<br>
+Contact: 0333-6303774<br>
+Developed By: Sher Usama Ch<br>
+Developer Contact: 03183410979<br>
+© 2026 All Rights Reserved
 </footer>
 
 <script>
-let medicines=JSON.parse(localStorage.getItem('rehmatMedicines')||'[]');
-
-function el(id){
-return document.getElementById(id);
-}
-
-function esc(s){
-return String(s??'').replace(/[&<>"']/g,c=>({
-'&':'&amp;',
-'<':'&lt;',
-'>':'&gt;',
-'"':'&quot;',
-"'":'&#39;'
-}[c]));
-}
+const STORAGE_KEY="rehmatMedicines";
+let records=[];
+try{
+records=JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]");
+if(!Array.isArray(records))records=[];
+}catch(e){records=[]}
 
 function save(){
-localStorage.setItem('rehmatMedicines',JSON.stringify(medicines));
-render();
+localStorage.setItem(STORAGE_KEY,JSON.stringify(records));
 }
 
 function show(id){
-['dashboard','add','stock','reports'].forEach(x=>{
-el(x).classList.add('hidden');
-});
-el(id).classList.remove('hidden');
+document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+document.getElementById(id).classList.add("active");
 render();
 }
 
-function status(date){
+function getStatus(date){
 let today=new Date();
 today.setHours(0,0,0,0);
-let expiry=new Date(date+'T00:00:00');
-let days=Math.ceil((expiry-today)/86400000);
-
-if(days<0)return ['Expired','expired'];
-if(days<=180)return ['Expiring Soon','warning'];
-return ['Safe','safe'];
+let expiry=new Date(date+"T00:00:00");
+if(isNaN(expiry.getTime()))return ["Unknown",""];
+if(expiry<today)return ["Expired","expired"];
+let months=(expiry.getFullYear()-today.getFullYear())*12+
+expiry.getMonth()-today.getMonth();
+if(months===0)return ["Current Month","current"];
+if(months<=4)return ["Yellow Alert","warning"];
+if(months<=6)return ["Green Alert","safe"];
+return ["Safe",""];
 }
 
-el('medicineForm').addEventListener('submit',function(e){
-e.preventDefault();
-
-medicines.push({
-id:Date.now(),
-name:el('name').value.trim(),
-company:el('company').value.trim(),
-batch:el('batch').value.trim(),
-qty:Number(el('qty').value),
-expiry:el('expiry').value,
-price:Number(el('price').value||0),
-staff:el('staff').value
-});
-
-save();
-this.reset();
-
-alert('Medicine saved successfully!');
-show('stock');
-});
-
-function del(id){
-if(confirm('Are you sure you want to delete this record?')){
-medicines=medicines.filter(m=>m.id!==id);
-save();
+function esc(value){
+return String(value??"").replace(/[&<>"']/g,c=>({
+"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[c]));
 }
+
+function rowHTML(r,staff=false){
+let s=getStatus(r.expiry);
+return `<tr>
+<td>${esc(r.name)}</td>
+<td>${esc(r.company)}</td>
+<td>${esc(r.batch)}</td>
+<td>${esc(r.expiry)}</td>
+<td>${Number(r.qty)||0}</td>
+${staff?`<td>${esc(r.staff)}</td>`:""}
+<td><span class="status ${s[1]}">${s[0]}</span></td>
+</tr>`;
 }
 
 function render(){
+let expired=records.filter(r=>getStatus(r.expiry)[0]==="Expired");
+let current=records.filter(r=>getStatus(r.expiry)[0]==="Current Month");
+let soon=records.filter(r=>["Green Alert","Yellow Alert"].includes(getStatus(r.expiry)[0]));
 
-let q=el('search').value.toLowerCase();
-let filter=el('companyFilter').value;
+document.getElementById("total").textContent=records.length;
+document.getElementById("expiredCount").textContent=expired.length;
+document.getElementById("soonCount").textContent=soon.length;
+document.getElementById("currentCount").textContent=current.length;
+document.getElementById("totalQty").textContent=records.reduce((a,r)=>a+(Number(r.qty)||0),0);
+document.getElementById("expiredQty").textContent=expired.reduce((a,r)=>a+(Number(r.qty)||0),0);
 
-let companies=[...new Set(medicines.map(m=>m.company))];
+let alerts=records.filter(r=>getStatus(r.expiry)[0]!=="Safe");
+alerts.sort((a,b)=>new Date(a.expiry)-new Date(b.expiry));
 
-el('companyFilter').innerHTML=
-'<option value="">All Companies</option>'+
-companies.map(c=>
-`<option value="${esc(c)}">${esc(c)}</option>`
-).join('');
+document.getElementById("alertsTable").innerHTML=alerts.length?
+alerts.map(r=>rowHTML(r)).join(""):'<tr><td colspan="6" class="empty">No expiry alerts found</td></tr>';
 
-el('companyFilter').value=filter;
+document.getElementById("expiredTable").innerHTML=expired.length?
+expired.map(r=>rowHTML(r)).join(""):'<tr><td colspan="6" class="empty">No expired records</td></tr>';
 
-let filtered=medicines.filter(m=>
-(m.name+' '+m.company+' '+m.batch).toLowerCase().includes(q)
-);
-
-el('records').innerHTML=filtered.map(m=>{
-let s=status(m.expiry);
-
-return `<tr class="${s[1]}">
-<td>${esc(m.name)}</td>
-<td>${esc(m.company)}</td>
-<td>${esc(m.batch)}</td>
-<td>${m.qty}</td>
-<td>${m.expiry}</td>
-<td>${s[0]}</td>
-<td class="no-print">
-<button class="danger" onclick="del(${m.id})">Delete</button>
-</td>
-</tr>`;
-}).join('');
-
-let total=medicines.length;
-
-let expired=medicines.filter(m=>
-status(m.expiry)[0]==='Expired'
-).length;
-
-let soon=medicines.filter(m=>
-status(m.expiry)[0]==='Expiring Soon'
-).length;
-
-el('total').textContent=total;
-el('expiredCount').textContent=expired;
-el('soon').textContent=soon;
-
-el('quantity').textContent=
-medicines.reduce((a,m)=>a+m.qty,0);
-
-el('alerts').innerHTML=medicines
-.filter(m=>status(m.expiry)[0]!=='Safe')
-.map(m=>{
-let s=status(m.expiry);
-return `<tr class="${s[1]}">
-<td>${esc(m.name)}</td>
-<td>${esc(m.company)}</td>
-<td>${esc(m.batch)}</td>
-<td>${m.expiry}</td>
-<td>${m.qty}</td>
-<td>${s[0]}</td>
-</tr>`;
-}).join('');
-
-let report=medicines.filter(m=>
-!filter||m.company===filter
-);
-
-el('reportRows').innerHTML=report.map(m=>
-`<tr>
-<td>${esc(m.name)}</td>
-<td>${esc(m.company)}</td>
-<td>${esc(m.batch)}</td>
-<td>${m.qty}</td>
-<td>${m.expiry}</td>
-<td>${esc(m.staff)}</td>
-</tr>`
-).join('');
+updateCompanyFilter();
+renderReports();
 }
 
-function exportCSV(){
+function updateCompanyFilter(){
+let filter=document.getElementById("companyFilter");
+let old=filter.value||"All";
+let companies=[...new Set(records.map(r=>r.company).filter(Boolean))].sort();
+filter.innerHTML='<option value="All">All Companies</option>'+
+companies.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
+filter.value=companies.includes(old)?old:"All";
+}
 
-let rows=[[
-'Medicine',
-'Company',
-'Batch',
-'Quantity',
-'Expiry',
-'Staff',
-'Purchase Price'
-]];
+function getFilteredRecords(){
+let selected=document.getElementById("companyFilter").value;
+return selected==="All"?records:records.filter(r=>r.company===selected);
+}
 
-medicines.forEach(m=>{
-rows.push([
-m.name,m.company,m.batch,
-m.qty,m.expiry,m.staff,m.price
-]);
+function renderReports(){
+let list=getFilteredRecords();
+document.getElementById("reportsTable").innerHTML=list.length?
+list.map(r=>rowHTML(r,true)).join(""):'<tr><td colspan="7" class="empty">No records found</td></tr>';
+}
+
+document.getElementById("expiryForm").addEventListener("submit",function(e){
+e.preventDefault();
+let record={
+name:document.getElementById("medicine").value.trim(),
+company:document.getElementById("company").value.trim(),
+batch:document.getElementById("batch").value.trim(),
+expiry:document.getElementById("expiry").value,
+qty:Number(document.getElementById("qty").value),
+staff:document.getElementById("staff").value
+};
+if(!record.name||!record.company||!record.batch||!record.expiry||record.qty<1){
+alert("Please enter all details correctly.");
+return;
+}
+records.push(record);
+save();
+this.reset();
+alert("Expiry record saved successfully!");
+show("dashboard");
 });
 
-let csv=rows.map(r=>
-r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')
-).join('\n');
-
-let blob=new Blob(['\uFEFF'+csv],{
-type:'text/csv;charset=utf-8;'
+function shareWhatsApp(){
+let list=getFilteredRecords();
+if(!list.length){alert("No records available.");return;}
+let message="*REHMAT AZIZ MEDICINE - EXPIRY REPORT*\n\n";
+list.forEach((r,i)=>{
+message+=(i+1)+". "+r.name+
+"\nCompany: "+r.company+
+"\nBatch: "+r.batch+
+"\nExpiry: "+r.expiry+
+"\nQuantity: "+r.qty+
+"\nStaff: "+r.staff+
+"\nStatus: "+getStatus(r.expiry)[0]+"\n\n";
 });
+message+="Total Records: "+list.length+
+"\n7-City Centre, Rahim Yar Khan"+
+"\nContact: 0333-6303774";
+window.open("https://wa.me/?text="+encodeURIComponent(message),"_blank");
+}
 
-let a=document.createElement('a');
+function downloadCSV(){
+let list=getFilteredRecords();
+if(!list.length){alert("No records available.");return;}
+let rows=[
+["Medicine","Company","Batch Number","Expiry Date","Quantity","Staff","Status"],
+...list.map(r=>[r.name,r.company,r.batch,r.expiry,r.qty,r.staff,getStatus(r.expiry)[0]])
+];
+let csv=rows.map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");
+let blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
 let url=URL.createObjectURL(blob);
-
+let a=document.createElement("a");
 a.href=url;
-a.download='Rehmat-Aziz-Expiry-Report.csv';
+a.download="Rehmat-Aziz-Expiry-Report.csv";
 a.click();
-
 URL.revokeObjectURL(url);
 }
 
 render();
 </script>
-
 </body>
 </html>
