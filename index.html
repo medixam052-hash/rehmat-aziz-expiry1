@@ -1,0 +1,148 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rehmat Aziz Medicine - Expiry System</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:Arial;background:#f1f5f9;margin:0;color:#172554}
+header{background:#075985;color:white;padding:22px;text-align:center}
+.container{padding:15px;max-width:1000px;margin:auto}
+.card{background:white;padding:18px;margin:14px 0;border-radius:12px;box-shadow:0 2px 8px #ddd}
+input,button{padding:12px;margin:5px 0;width:100%;border-radius:7px;border:1px solid #ccc;font-size:15px}
+button{background:#075985;color:white;border:0;font-weight:bold}
+button:active{background:#0369a1}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:#e0f2fe;padding:15px;text-align:center;border-radius:10px}
+.stat strong{display:block;font-size:24px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px;border:1px solid #ddd;text-align:left}
+th{background:#075985;color:white}
+.danger{color:red;font-weight:bold}
+.ok{color:green;font-weight:bold}
+</style>
+</head>
+<body>
+<header>
+<h2>REHMAT AZIZ MEDICINE</h2>
+<p>Expiry Management System</p>
+<small>7-City Centre Rahim Yar Khan</small>
+</header>
+<div class="container">
+<div class="stats">
+<div class="stat">Total Items<strong id="total">0</strong></div>
+<div class="stat">Expired<strong id="expired">0</strong></div>
+<div class="stat">Near Expiry<strong id="near">0</strong></div>
+</div>
+
+<div class="card">
+<h3>Add Medicine</h3>
+<input id="medicine" placeholder="Medicine Name">
+<input id="company" placeholder="Company Name">
+<input id="batch" placeholder="Batch Number">
+<input id="quantity" type="number" placeholder="Quantity">
+<label>Expiry Date</label>
+<input id="expiry" type="date">
+<button onclick="addMedicine()">Add Medicine</button>
+</div>
+
+<div class="card">
+<h3>Medicine Stock</h3>
+<input id="search" placeholder="Search medicine or company..." oninput="showData()">
+<div style="overflow-x:auto">
+<table>
+<thead>
+<tr><th>Medicine</th><th>Company</th><th>Batch</th><th>Qty</th><th>Expiry</th><th>Status</th><th>Delete</th></tr>
+</thead>
+<tbody id="list"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+<script>
+let medicines=JSON.parse(localStorage.getItem("rehmatMedicines")||"[]");
+
+function save(){
+localStorage.setItem("rehmatMedicines",JSON.stringify(medicines));
+showData();
+}
+
+function addMedicine(){
+let medicine=document.getElementById("medicine").value.trim();
+let company=document.getElementById("company").value.trim();
+let batch=document.getElementById("batch").value.trim();
+let quantity=document.getElementById("quantity").value;
+let expiry=document.getElementById("expiry").value;
+
+if(!medicine||!company||!quantity||!expiry){
+alert("Please fill all required fields");
+return;
+}
+
+medicines.push({
+id:Date.now(),medicine,company,batch,quantity,expiry
+});
+save();
+document.getElementById("medicine").value="";
+document.getElementById("company").value="";
+document.getElementById("batch").value="";
+document.getElementById("quantity").value="";
+document.getElementById("expiry").value="";
+alert("Medicine Added Successfully");
+}
+
+function getStatus(date){
+let today=new Date();
+today.setHours(0,0,0,0);
+let exp=new Date(date+"T00:00:00");
+let days=Math.ceil((exp-today)/86400000);
+if(days<0)return ["Expired","danger"];
+if(days<=180)return ["Near Expiry","danger"];
+return ["Safe","ok"];
+}
+
+function showData(){
+let search=document.getElementById("search").value.toLowerCase();
+let list=document.getElementById("list");
+list.innerHTML="";
+let expired=0,near=0;
+
+medicines.forEach((m,index)=>{
+let status=getStatus(m.expiry);
+if(status[0]=="Expired")expired++;
+if(status[0]=="Near Expiry")near++;
+
+if((m.medicine+" "+m.company).toLowerCase().includes(search)){
+list.innerHTML+=`<tr>
+<td>${escapeHTML(m.medicine)}</td>
+<td>${escapeHTML(m.company)}</td>
+<td>${escapeHTML(m.batch||"-")}</td>
+<td>${escapeHTML(m.quantity)}</td>
+<td>${m.expiry}</td>
+<td class="${status[1]}">${status[0]}</td>
+<td><button onclick="deleteMedicine(${m.id})">Delete</button></td>
+</tr>`;
+}
+});
+document.getElementById("total").innerText=medicines.length;
+document.getElementById("expired").innerText=expired;
+document.getElementById("near").innerText=near;
+}
+
+function escapeHTML(value){
+return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+function deleteMedicine(id){
+if(confirm("Delete this medicine?")){
+medicines=medicines.filter(m=>m.id!==id);
+save();
+}
+}
+showData();
+</script>
+</body>
+</html>
