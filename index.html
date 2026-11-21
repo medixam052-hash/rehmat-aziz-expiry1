@@ -317,7 +317,7 @@ document.getElementById("expiryForm").addEventListener("submit",async function(e
     batch:document.getElementById("batch").value.trim(),
     expiry:document.getElementById("expiry").value,
     qty:Number(document.getElementById("qty").value),
-    staff:currentRole==="staff" ? currentStaffName : document.getElementById("staff").value
+    staff:currentRole==="staff" ? currentStaffName : document.getElementById("staffSelect").value
   };
   if(!record.name||!record.company||!record.distribution||!record.batch||!record.expiry||record.qty<1){alert("Please enter all details correctly.");return;}
   try{
@@ -494,7 +494,7 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById("staffNav").style.display=currentRole==="admin"?"inline-block":"none";
     document.getElementById("staffForm").style.display=currentRole==="admin"?"block":"none";
     document.getElementById("staffListPanel").style.display=currentRole==="admin"?"block":"none";
-    const staffSelect=document.getElementById("staff");
+    const staffSelect=document.getElementById("staffSelect");
     if(currentRole==="staff"){staffSelect.innerHTML=`<option>${esc(currentStaffName)}</option>`;staffSelect.disabled=true;}
     else{staffSelect.disabled=false;staffSelect.innerHTML='<option>Owner</option><option>Staff 1</option><option>Staff 2</option>';}
     medicinesRef=collection(db,"users",ADMIN_UID,"medicines");
