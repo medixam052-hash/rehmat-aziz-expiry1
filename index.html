@@ -761,7 +761,7 @@ const status=getStatus(r.expiry)[0];
 
 if(status==="Expired"){
 
-makeExpiryMessage([r],"SINGLE EXPIRED MEDICINE REPORT");
+makeExpiryMessage([r],"MEDICINE EXPIRY REPORT");
 
 return;
 
@@ -769,7 +769,7 @@ return;
 
 if(["Yellow Alert","Green Alert"].includes(status)){
 
-makeExpiryMessage([r],"SINGLE NEAR EXPIRY MEDICINE REPORT");
+makeExpiryMessage([r],"MEDICINE EXPIRY REPORT");
 
 return;
 
