@@ -383,10 +383,48 @@ async function loadStaffProfiles(){
     const snap=await getDocs(collection(db,"staff"));
     staffProfiles=snap.docs.map(d=>({uid:d.id,...d.data()}));
     const body=document.getElementById("staffTable");
-    body.innerHTML=staffProfiles.length?staffProfiles.map(s=>`<tr><td>${esc(s.name||"")}</td><td>${esc(s.email||"")}</td><td>${s.active===true?"Active":"Inactive"}</td><td><button class="blue" onclick="toggleStaff('${s.uid}',${s.active===true?"true":"false"})">${s.active===true?"Deactivate":"Activate"}</button></td></tr>`).join(""):'<tr><td colspan="4" class="empty">No staff accounts yet</td></tr>';
-  }catch(error){console.error(error);alert("Staff list load nahi hui. Firestore Rules check karein.");}
+
+    body.innerHTML=staffProfiles.length?staffProfiles.map(s=>`
+      <tr>
+        <td>${esc(s.name||"")}</td>
+        <td>${esc(s.email||"")}</td>
+        <td>${s.active===true?"Active":"Inactive"}</td>
+        <td>
+          <button class="blue" onclick="editStaffName('${s.uid}')">Edit Name</button>
+          <button onclick="toggleStaff('${s.uid}',${s.active===true?"true":"false"})">
+            ${s.active===true?"Deactivate":"Activate"}
+          </button>
+        </td>
+      </tr>
+    `).join(""):'<tr><td colspan="4">No staff accounts yet</td></tr>';
+  }catch(error){
+    console.error(error);
+    alert("Staff list load nahi hui.");
+  }
 }
 window.loadStaffProfiles=loadStaffProfiles;
+
+async function editStaffName(uid){
+  const staff=staffProfiles.find(s=>s.uid===uid);
+  if(!staff) return;
+
+  const newName=prompt("Naya staff name likhein:",staff.name||"");
+  if(newName===null || !newName.trim()) return;
+
+  try{
+    await updateDoc(doc(db,"staff",uid),{
+      name:newName.trim()
+    });
+    await loadStaffProfiles();
+    alert("Staff ka naam change ho gaya!");
+  }catch(error){
+    console.error(error);
+    alert("Naam change nahi hua. Firebase Rules check karein.");
+  }
+}
+window.editStaffName=editStaffName;
+
+
 
 async function toggleStaff(uid,isActive){
   if(currentRole!=="admin") return;
