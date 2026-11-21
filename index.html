@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>REHMAT AZIZ MEDICINE</title>
+<title>Rehmat Aziz Medicine - Expiry System</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#f2f6f3;color:#222;font-family:Arial,sans-serif}
@@ -12,9 +12,11 @@ header{background:#087b43;color:white;text-align:center;padding:20px 10px}
 header h2{margin:0 0 8px}
 header p{margin:4px;font-size:13px}
 nav{display:flex;justify-content:center;flex-wrap:wrap;background:#075c35}
-nav button{background:transparent;color:white;border:0;padding:14px 16px}
+nav button{background:transparent;color:white;border:0;padding:14px 16px;cursor:pointer}
+nav button:hover{background:#087b43}
 .container{max-width:1100px;margin:auto;padding:14px}
-.section{display:none}.section.active{display:block}
+.section{display:none}
+.section.active{display:block}
 h3{color:#087b43}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:12px;margin:15px 0}
 .card{background:white;padding:16px 8px;border-radius:9px;text-align:center;border-left:5px solid #087b43;box-shadow:0 2px 7px #0001}
@@ -24,13 +26,11 @@ form,.panel{background:white;padding:16px;border-radius:9px;margin:14px 0;box-sh
 label{display:block;font-weight:bold;margin:12px 0 5px}
 input,select{width:100%;padding:12px;border:1px solid #ccc;border-radius:6px;font-size:15px}
 button{background:#087b43;color:white;border:0;border-radius:6px;padding:11px 14px;margin:4px 2px;cursor:pointer}
-.delete{background:#c62828}
-.logout{background:#555}
 .whatsapp{background:#168b45}
 .blue{background:#1769aa}
 .gray{background:#555}
 .table-wrap{overflow-x:auto;margin:12px 0}
-table{width:100%;min-width:850px;border-collapse:collapse;background:white}
+table{width:100%;min-width:700px;border-collapse:collapse;background:white}
 th,td{border:1px solid #ddd;padding:10px;text-align:left;font-size:13px}
 th{background:#087b43;color:white}
 .status{font-weight:bold;padding:5px 8px;border-radius:5px;display:inline-block}
@@ -39,33 +39,40 @@ th{background:#087b43;color:white}
 .safe{background:#d4f5dc;color:#087b43}
 .current{background:#d7eaff;color:#0755a0}
 .empty{text-align:center;color:#777;padding:18px}
-#loginBox{max-width:400px;margin:60px auto;background:white;padding:25px;border-radius:10px;box-shadow:0 2px 10px #0002}
-#appArea{display:none}
 footer{background:#075c35;color:white;text-align:center;padding:18px;margin-top:25px;font-size:13px;line-height:1.8}
-@media print{nav,form,.no-print,footer{display:none!important}.section{display:block!important}}
+@media(max-width:500px){nav button{padding:12px 9px;font-size:12px}}
+@media print{nav,form,.no-print,footer{display:none!important}.section{display:block!important}.panel{box-shadow:none}}
+
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:#f2f6f3}
+.login-card{width:100%;max-width:390px;background:#fff;padding:28px;border-radius:14px;box-shadow:0 5px 24px #0002;text-align:center}
+.login-card h2{color:#087b43;margin:0 0 8px}
+.login-card p{color:#666;font-size:14px}
+.login-card label{text-align:left}
+.login-card button{width:100%;margin-top:16px;font-size:16px}
+#loginError{color:#b00020;font-size:13px;min-height:18px}
 </style>
 </head>
 <body>
 
-<div id="loginBox">
-<h2 style="color:#087b43;text-align:center">REHMAT AZIZ MEDICINE</h2>
-<h3 style="text-align:center">Admin Login</h3>
-<form id="loginForm">
+<section id="loginScreen" class="login-wrap">
+<form id="loginForm" class="login-card">
+<h2>REHMAT AZIZ MEDICINE</h2>
+<p>Admin Login</p>
 <label>Email</label>
-<input id="email" type="email" value="adminrehmataziz@gmail.com" required>
+<input id="loginEmail" type="email" value="adminrehmataziz@gmail.com" required>
 <label>Password</label>
-<input id="password" type="password" required placeholder="Enter password">
-<button type="submit" style="width:100%">Login</button>
+<input id="loginPassword" type="password" placeholder="Enter your password" required>
+<div id="loginError"></div>
+<button id="loginButton" type="submit">Login</button>
 </form>
-</div>
+</section>
 
-<div id="appArea">
+<div id="appShell" style="display:none">
 <header>
 <h2>REHMAT AZIZ MEDICINE</h2>
 <p>Medicine Expiry Management System</p>
 <p>7-City Centre, Rahim Yar Khan</p>
 <p>Contact: 0333-6303774</p>
-<button class="logout" id="logoutBtn">Logout</button>
 </header>
 
 <nav>
@@ -75,7 +82,6 @@ footer{background:#075c35;color:white;text-align:center;padding:18px;margin-top:
 </nav>
 
 <div class="container">
-
 <section id="dashboard" class="section active">
 <h3>Expiry Dashboard</h3>
 <div class="cards">
@@ -94,7 +100,7 @@ footer{background:#075c35;color:white;text-align:center;padding:18px;margin-top:
 <h3>Expiry Alerts</h3>
 <div class="table-wrap">
 <table>
-<thead><tr><th>Medicine</th><th>Distribution</th><th>Company</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Status</th><th>Action</th></tr></thead>
+<thead><tr><th>Medicine</th><th>Company</th><th>Distribution</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Status</th></tr></thead>
 <tbody id="alertsTable"></tbody>
 </table>
 </div>
@@ -103,7 +109,7 @@ footer{background:#075c35;color:white;text-align:center;padding:18px;margin-top:
 <h3 style="color:#c00000">Expired Records</h3>
 <div class="table-wrap">
 <table>
-<thead><tr><th>Medicine</th><th>Distribution</th><th>Company</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Status</th><th>Action</th></tr></thead>
+<thead><tr><th>Medicine</th><th>Company</th><th>Distribution</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Status</th></tr></thead>
 <tbody id="expiredTable"></tbody>
 </table>
 </div>
@@ -111,34 +117,27 @@ footer{background:#075c35;color:white;text-align:center;padding:18px;margin-top:
 </section>
 
 <section id="add" class="section">
-<h3>Add Medicine / Expiry Record</h3>
+<h3>Add Expiry Record</h3>
 <form id="expiryForm">
 <label>Medicine Name</label>
 <input id="medicine" required placeholder="Medicine name">
-
-<label>Distribution Name</label>
-<input id="distribution" required placeholder="e.g. Premier Sale Distribution">
-
 <label>Company / Manufacturer</label>
 <input id="company" required placeholder="Company name">
-
+<label>Distribution Name</label>
+<input id="distribution" required placeholder="e.g. Premier Sale Distribution">
 <label>Batch Number</label>
 <input id="batch" required placeholder="Batch number">
-
 <label>Expiry Date</label>
 <input type="date" id="expiry" required>
-
 <label>Expiry Quantity</label>
 <input type="number" id="qty" min="1" required placeholder="Quantity">
-
 <label>Staff Name</label>
 <select id="staff">
 <option>Owner</option>
 <option>Staff 1</option>
 <option>Staff 2</option>
 </select>
-
-<button type="submit">Save Medicine</button>
+<button type="submit">Save Expiry Record</button>
 </form>
 </section>
 
@@ -157,7 +156,7 @@ footer{background:#075c35;color:white;text-align:center;padding:18px;margin-top:
 </div>
 <div class="table-wrap">
 <table>
-<thead><tr><th>Medicine</th><th>Distribution</th><th>Company</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Staff</th><th>Status</th><th>Action</th></tr></thead>
+<thead><tr><th>Medicine</th><th>Company</th><th>Distribution</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Staff</th><th>Status</th><th>Action</th></tr></thead>
 <tbody id="reportsTable"></tbody>
 </table>
 </div>
@@ -175,235 +174,230 @@ Developer Contact: 03183410979<br>
 </div>
 
 <script type="module">
-import {initializeApp} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
 import {
- getFirestore,collection,addDoc,getDocs,deleteDoc,doc,serverTimestamp
+getFirestore,collection,addDoc,getDocs,deleteDoc,doc,serverTimestamp
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 import {
- getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut
+getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
 
-const firebaseConfig={
- apiKey:"AIzaSyBqKyRPzT-CNL9jCdSQ8ZBPY7F1LQMOZo",
- authDomain:"rehmat-aziz-medicine-7934f.firebaseapp.com",
- projectId:"rehmat-aziz-medicine-7934f",
- storageBucket:"rehmat-aziz-medicine-7934f.firebasestorage.app",
- messagingSenderId:"1024979731261",
- appId:"1:1024979731261:web:9a5b1c579934514398fb54",
- measurementId:"G-E7JRWPPPY6"
+const firebaseConfig = {
+apiKey:"AIzaSyBqKyRPzT-CNL9jCdSQ8ZBPYy7F1LQMOZo",
+authDomain:"rehmat-aziz-medicine-7934f.firebaseapp.com",
+projectId:"rehmat-aziz-medicine-7934f",
+storageBucket:"rehmat-aziz-medicine-7934f.firebasestorage.app",
+messagingSenderId:"1024979731261",
+appId:"1:1024979731261:web:9a5b1c579934514398fb54",
+measurementId:"G-E7JRWPPPY6"
 };
 
-const ADMIN_UID="MWaZVYeQThPWBquJKGba3AZmRpw1";
 const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
 const auth=getAuth(app);
-const medicinesRef=collection(db,"users","admin001","medicines");
+const ADMIN_EMAIL="adminrehmataziz@gmail.com";
+const ADMIN_UID="MWaZVYeQThPWBquJKGba3AZmRpw1";
+let medicinesRef=null;
 let records=[];
 
-document.getElementById("loginForm").addEventListener("submit",async e=>{
- e.preventDefault();
- try{
-  await signInWithEmailAndPassword(
-   auth,
-   document.getElementById("email").value.trim(),
-   document.getElementById("password").value
-  );
- }catch(error){
-  alert("Login nahi hua. Email aur password check karein.");
-  console.error(error);
- }
-});
-
-onAuthStateChanged(auth,async user=>{
- if(user && user.uid===ADMIN_UID){
-  document.getElementById("loginBox").style.display="none";
-  document.getElementById("appArea").style.display="block";
-  await loadRecords();
- }else{
-  document.getElementById("loginBox").style.display="block";
-  document.getElementById("appArea").style.display="none";
-  if(user) await signOut(auth);
- }
-});
-
-document.getElementById("logoutBtn").addEventListener("click",()=>signOut(auth));
-
 function show(id){
- document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
- document.getElementById(id).classList.add("active");
- render();
+document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+render();
 }
 window.show=show;
 
 function getStatus(date){
- const today=new Date();today.setHours(0,0,0,0);
- const expiry=new Date(date+"T00:00:00");
- if(isNaN(expiry.getTime()))return ["Unknown",""];
- if(expiry<today)return ["Expired","expired"];
- const months=(expiry.getFullYear()-today.getFullYear())*12+expiry.getMonth()-today.getMonth();
- if(months===0)return ["Current Month","current"];
- if(months<=4)return ["Yellow Alert","warning"];
- if(months<=6)return ["Green Alert","safe"];
- return ["Safe",""];
+const today=new Date();today.setHours(0,0,0,0);
+const expiry=new Date(date+"T00:00:00");
+if(isNaN(expiry.getTime()))return ["Unknown",""];
+if(expiry<today)return ["Expired","expired"];
+const months=(expiry.getFullYear()-today.getFullYear())*12+expiry.getMonth()-today.getMonth();
+if(months===0)return ["Current Month","current"];
+if(months<=4)return ["Yellow Alert","warning"];
+if(months<=6)return ["Green Alert","safe"];
+return ["Safe",""];
 }
 
 function esc(value){
- return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 }
 
 function rowHTML(r,staff=false){
- const s=getStatus(r.expiry);
- return `<tr>
- <td>${esc(r.name)}</td>
- <td>${esc(r.distribution||"")}</td>
- <td>${esc(r.company)}</td>
- <td>${esc(r.batch)}</td>
- <td>${esc(r.expiry)}</td>
- <td>${Number(r.qty)||0}</td>
- ${staff?`<td>${esc(r.staff||"")}</td>`:""}
- <td><span class="status ${s[1]}">${s[0]}</span></td>
- <td><button class="delete" onclick="deleteMedicine('${r.id}')">Delete</button></td>
- </tr>`;
+const s=getStatus(r.expiry);
+return `<tr><td>${esc(r.name)}</td><td>${esc(r.company)}</td><td>${esc(r.distribution||"")}</td><td>${esc(r.batch)}</td><td>${esc(r.expiry)}</td><td>${Number(r.qty)||0}</td>${staff?`<td>${esc(r.staff||"")}</td>`:""}<td><span class="status ${s[1]}">${s[0]}</span></td>${staff?`<td><button style="background:#b3261e" onclick="deleteRecord('${r.id}')">Delete</button></td>`:""}</tr>`;
 }
 
 function render(){
- const expired=records.filter(r=>getStatus(r.expiry)[0]==="Expired");
- const current=records.filter(r=>getStatus(r.expiry)[0]==="Current Month");
- const soon=records.filter(r=>["Green Alert","Yellow Alert"].includes(getStatus(r.expiry)[0]));
- document.getElementById("total").textContent=records.length;
- document.getElementById("expiredCount").textContent=expired.length;
- document.getElementById("soonCount").textContent=soon.length;
- document.getElementById("currentCount").textContent=current.length;
- document.getElementById("totalQty").textContent=records.reduce((a,r)=>a+(Number(r.qty)||0),0);
- document.getElementById("expiredQty").textContent=expired.reduce((a,r)=>a+(Number(r.qty)||0),0);
- const alerts=records.filter(r=>getStatus(r.expiry)[0]!=="Safe").sort((a,b)=>new Date(a.expiry)-new Date(b.expiry));
- document.getElementById("alertsTable").innerHTML=alerts.length?alerts.map(r=>rowHTML(r)).join(""):'<tr><td colspan="8" class="empty">No expiry alerts found</td></tr>';
- document.getElementById("expiredTable").innerHTML=expired.length?expired.map(r=>rowHTML(r)).join(""):'<tr><td colspan="8" class="empty">No expired records</td></tr>';
- updateCompanyFilter();
- renderReports();
+const expired=records.filter(r=>getStatus(r.expiry)[0]==="Expired");
+const current=records.filter(r=>getStatus(r.expiry)[0]==="Current Month");
+const soon=records.filter(r=>["Green Alert","Yellow Alert"].includes(getStatus(r.expiry)[0]));
+document.getElementById("total").textContent=records.length;
+document.getElementById("expiredCount").textContent=expired.length;
+document.getElementById("soonCount").textContent=soon.length;
+document.getElementById("currentCount").textContent=current.length;
+document.getElementById("totalQty").textContent=records.reduce((a,r)=>a+(Number(r.qty)||0),0);
+document.getElementById("expiredQty").textContent=expired.reduce((a,r)=>a+(Number(r.qty)||0),0);
+const alerts=records.filter(r=>getStatus(r.expiry)[0]!=="Safe").sort((a,b)=>new Date(a.expiry)-new Date(b.expiry));
+document.getElementById("alertsTable").innerHTML=alerts.length?alerts.map(r=>rowHTML(r)).join(""):'<tr><td colspan="7" class="empty">No expiry alerts found</td></tr>';
+document.getElementById("expiredTable").innerHTML=expired.length?expired.map(r=>rowHTML(r)).join(""):'<tr><td colspan="7" class="empty">No expired records</td></tr>';
+updateCompanyFilter();
+renderReports();
 }
 
 function updateCompanyFilter(){
- const filter=document.getElementById("companyFilter");
- const old=filter.value||"All";
- const companies=[...new Set(records.map(r=>r.company).filter(Boolean))].sort();
- filter.innerHTML='<option value="All">All Companies</option>'+companies.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
- filter.value=companies.includes(old)?old:"All";
+const filter=document.getElementById("companyFilter");
+const old=filter.value||"All";
+const companies=[...new Set(records.map(r=>r.company).filter(Boolean))].sort();
+filter.innerHTML='<option value="All">All Companies</option>'+companies.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
+filter.value=companies.includes(old)?old:"All";
 }
-
 function getFilteredRecords(){
- const selected=document.getElementById("companyFilter").value;
- return selected==="All"?records:records.filter(r=>r.company===selected);
+const selected=document.getElementById("companyFilter").value;
+return selected==="All"?records:records.filter(r=>r.company===selected);
 }
-
 function renderReports(){
- const list=getFilteredRecords();
- document.getElementById("reportsTable").innerHTML=list.length?list.map(r=>rowHTML(r,true)).join(""):'<tr><td colspan="9" class="empty">No records found</td></tr>';
+const list=getFilteredRecords();
+document.getElementById("reportsTable").innerHTML=list.length?list.map(r=>rowHTML(r,true)).join(""):'<tr><td colspan="9" class="empty">No records found</td></tr>';
 }
 window.renderReports=renderReports;
 
 async function loadRecords(){
- try{
-  const snapshot=await getDocs(medicinesRef);
-  records=snapshot.docs.map(d=>{
-   const x=d.data();
-   return {
-    id:d.id,
-    name:x.name||"",
-    distribution:x.distributionName||"",
-    company:x.company||"",
-    batch:x.batchNO||x.batch||"",
-    expiry:x.expiryDate||x.expiry||"",
-    qty:Number(x.Quantity??x.quantity??x.qty)||0,
-    staff:x.staff||""
-   };
-  });
-  render();
- }catch(error){
-  console.error(error);
-  alert("Firebase se records load nahi huay. Rules check karein.");
- }
+try{
+const snapshot=await getDocs(medicinesRef);
+records=snapshot.docs.map(d=>{
+const x=d.data();
+return {id:d.id,name:x.name||"",company:x.company||"",distribution:x.distributionName||x.distribution||"",batch:x.batchNO||x.batch||"",expiry:x.expiryDate||x.expiry||"",qty:Number(x.Quantity??x.quantity??x.qty)||0,staff:x.staff||""};
+});
+render();
+console.log("Loaded "+records.length+" records.");
+}catch(error){
+console.error(error);
+alert("Firebase se records load nahi hue. Firestore Rules check karein.");
+}
 }
 
 document.getElementById("expiryForm").addEventListener("submit",async function(e){
- e.preventDefault();
- const record={
-  name:document.getElementById("medicine").value.trim(),
-  distribution:document.getElementById("distribution").value.trim(),
-  company:document.getElementById("company").value.trim(),
-  batch:document.getElementById("batch").value.trim(),
-  expiry:document.getElementById("expiry").value,
-  qty:Number(document.getElementById("qty").value),
-  staff:document.getElementById("staff").value
- };
- if(!record.name||!record.distribution||!record.company||!record.batch||!record.expiry||record.qty<1){
-  alert("Tamam details bharein.");return;
- }
- try{
-  await addDoc(medicinesRef,{
-   name:record.name,
-   distributionName:record.distribution,
-   company:record.company,
-   batchNO:record.batch,
-   expiryDate:record.expiry,
-   Quantity:String(record.qty),
-   staff:record.staff,
-   createdAt:serverTimestamp()
-  });
-  this.reset();
-  await loadRecords();
-  alert("Medicine Firebase mein save ho gayi!");
-  show("dashboard");
- }catch(error){
-  console.error(error);
-  alert("Firebase mein save nahi hui. Rules check karein.");
- }
+e.preventDefault();
+const record={
+name:document.getElementById("medicine").value.trim(),
+company:document.getElementById("company").value.trim(),
+distribution:document.getElementById("distribution").value.trim(),
+batch:document.getElementById("batch").value.trim(),
+expiry:document.getElementById("expiry").value,
+qty:Number(document.getElementById("qty").value),
+staff:document.getElementById("staff").value
+};
+if(!record.name||!record.company||!record.distribution||!record.batch||!record.expiry||record.qty<1){
+alert("Please enter all details correctly.");return;
+}
+try{
+await addDoc(medicinesRef,{
+name:record.name,
+company:record.company,
+distributionName:record.distribution,
+batchNO:record.batch,
+expiryDate:record.expiry,
+Quantity:String(record.qty),
+staff:record.staff,
+createdAt:serverTimestamp()
+});
+this.reset();
+await loadRecords();
+alert("Expiry record Firebase mein save ho gaya!");
+show("dashboard");
+}catch(error){
+console.error(error);
+alert("Firebase mein save nahi hua. Firestore Rules check karein.");
+}
 });
 
-window.deleteMedicine=async function(id){
- const ok=confirm("Kya aap ye medicine record hamesha ke liye delete karna chahte hain?");
- if(!ok)return;
- try{
-  await deleteDoc(doc(db,"users","admin001","medicines",id));
-  await loadRecords();
-  alert("Medicine delete ho gayi!");
- }catch(error){
-  console.error(error);
-  alert("Delete nahi hui. Firebase Rules check karein.");
- }
-};
+async function deleteRecord(id){
+const record=records.find(r=>r.id===id);
+if(!record)return;
+if(!confirm(`Kya aap "${record.name}" ka record delete karna chahte hain?`))return;
+try{
+await deleteDoc(doc(medicinesRef,id));
+await loadRecords();
+alert("Record delete ho gaya.");
+}catch(error){
+console.error(error);
+alert("Record delete nahi hua. Firestore Rules check karein.");
+}
+}
+window.deleteRecord=deleteRecord;
 
 function shareWhatsApp(){
- const list=getFilteredRecords();
- if(!list.length){alert("No records available.");return;}
- let message="*REHMAT AZIZ MEDICINE - EXPIRY REPORT*\n\n";
- list.forEach((r,i)=>{
-  message+=(i+1)+". "+r.name+
-  "\nDistribution: "+(r.distribution||"")+
-  "\nCompany: "+r.company+
-  "\nBatch: "+r.batch+
-  "\nExpiry: "+r.expiry+
-  "\nQuantity: "+r.qty+
-  "\nStaff: "+(r.staff||"")+
-  "\nStatus: "+getStatus(r.expiry)[0]+"\n\n";
- });
- message+="Total Records: "+list.length+"\n7-City Centre, Rahim Yar Khan\nContact: 0333-6303774";
- window.open("https://wa.me/?text="+encodeURIComponent(message),"_blank");
+const list=getFilteredRecords();
+if(!list.length){alert("No records available.");return;}
+let message="*REHMAT AZIZ MEDICINE - EXPIRY REPORT*\n\n";
+list.forEach((r,i)=>{
+message+=(i+1)+". "+r.name+"\nCompany: "+r.company+"\nDistribution: "+(r.distribution||"")+"\nBatch: "+r.batch+"\nExpiry: "+r.expiry+"\nQuantity: "+r.qty+"\nStaff: "+(r.staff||"")+"\nStatus: "+getStatus(r.expiry)[0]+"\n\n";
+});
+message+="Total Records: "+list.length+"\n7-City Centre, Rahim Yar Khan\nContact: 0333-6303774";
+window.open("https://wa.me/?text="+encodeURIComponent(message),"_blank");
 }
 window.shareWhatsApp=shareWhatsApp;
 
 function downloadCSV(){
- const list=getFilteredRecords();
- if(!list.length){alert("No records available.");return;}
- const rows=[["Medicine","Distribution","Company","Batch Number","Expiry Date","Quantity","Staff","Status"],...list.map(r=>[r.name,r.distribution||"",r.company,r.batch,r.expiry,r.qty,r.staff||"",getStatus(r.expiry)[0]])];
- const csv=rows.map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");
- const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
- const url=URL.createObjectURL(blob);
- const a=document.createElement("a");
- a.href=url;a.download="Rehmat-Aziz-Expiry-Report.csv";a.click();
- URL.revokeObjectURL(url);
+const list=getFilteredRecords();
+if(!list.length){alert("No records available.");return;}
+const rows=[["Medicine","Company","Distribution Name","Batch Number","Expiry Date","Quantity","Staff","Status"],...list.map(r=>[r.name,r.company,r.distribution||"",r.batch,r.expiry,r.qty,r.staff||"",getStatus(r.expiry)[0]])];
+const csv=rows.map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");
+const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+const url=URL.createObjectURL(blob);
+const a=document.createElement("a");
+a.href=url;a.download="Rehmat-Aziz-Expiry-Report.csv";a.click();
+URL.revokeObjectURL(url);
 }
 window.downloadCSV=downloadCSV;
+
+const loginForm=document.getElementById("loginForm");
+const loginError=document.getElementById("loginError");
+const loginButton=document.getElementById("loginButton");
+
+loginForm.addEventListener("submit",async(e)=>{
+e.preventDefault();
+loginError.textContent="";
+const email=document.getElementById("loginEmail").value.trim().toLowerCase();
+const password=document.getElementById("loginPassword").value;
+if(email!==ADMIN_EMAIL){
+loginError.textContent="This email is not authorized as admin.";
+return;
+}
+loginButton.disabled=true;
+loginButton.textContent="Please wait...";
+try{
+await signInWithEmailAndPassword(auth,email,password);
+}catch(error){
+console.error(error);
+loginError.textContent=error.code==="auth/invalid-credential"?"Email ya password ghalat hai.":"Login nahi hua: "+(error.message||error.code);
+}finally{
+loginButton.disabled=false;
+loginButton.textContent="Login";
+}
+});
+
+onAuthStateChanged(auth,async(user)=>{
+if(user&&user.email&&user.email.toLowerCase()===ADMIN_EMAIL&&user.uid===ADMIN_UID){
+document.getElementById("loginScreen").style.display="none";
+document.getElementById("appShell").style.display="block";
+medicinesRef=collection(db,"users",user.uid,"medicines");
+await loadRecords();
+}else{
+if(user)await signOut(auth);
+records=[];
+medicinesRef=null;
+document.getElementById("appShell").style.display="none";
+document.getElementById("loginScreen").style.display="flex";
+}
+});
+
+const logoutButton=document.createElement("button");
+logoutButton.textContent="Logout";
+logoutButton.style.background="#b3261e";
+logoutButton.addEventListener("click",async()=>{await signOut(auth);});
+document.querySelector("nav").appendChild(logoutButton);
 </script>
 </body>
 </html>
