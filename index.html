@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rehmat Aziz Medicine</title>
+<title>REHMAT AZIZ MEDICINE</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#f2f6f3;color:#222;font-family:Arial,sans-serif}
@@ -12,10 +12,9 @@ header{background:#087b43;color:white;text-align:center;padding:20px 10px}
 header h2{margin:0 0 8px}
 header p{margin:4px;font-size:13px}
 nav{display:flex;justify-content:center;flex-wrap:wrap;background:#075c35}
-nav button{background:transparent;color:white;border:0;padding:14px 16px;cursor:pointer}
+nav button{background:transparent;color:white;border:0;padding:14px 16px}
 .container{max-width:1100px;margin:auto;padding:14px}
-.section{display:none}
-.section.active{display:block}
+.section{display:none}.section.active{display:block}
 h3{color:#087b43}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:12px;margin:15px 0}
 .card{background:white;padding:16px 8px;border-radius:9px;text-align:center;border-left:5px solid #087b43;box-shadow:0 2px 7px #0001}
@@ -25,9 +24,13 @@ form,.panel{background:white;padding:16px;border-radius:9px;margin:14px 0;box-sh
 label{display:block;font-weight:bold;margin:12px 0 5px}
 input,select{width:100%;padding:12px;border:1px solid #ccc;border-radius:6px;font-size:15px}
 button{background:#087b43;color:white;border:0;border-radius:6px;padding:11px 14px;margin:4px 2px;cursor:pointer}
-.whatsapp{background:#168b45}.blue{background:#1769aa}.gray{background:#555}
+.delete{background:#c62828}
+.logout{background:#555}
+.whatsapp{background:#168b45}
+.blue{background:#1769aa}
+.gray{background:#555}
 .table-wrap{overflow-x:auto;margin:12px 0}
-table{width:100%;min-width:700px;border-collapse:collapse;background:white}
+table{width:100%;min-width:850px;border-collapse:collapse;background:white}
 th,td{border:1px solid #ddd;padding:10px;text-align:left;font-size:13px}
 th{background:#087b43;color:white}
 .status{font-weight:bold;padding:5px 8px;border-radius:5px;display:inline-block}
@@ -36,46 +39,43 @@ th{background:#087b43;color:white}
 .safe{background:#d4f5dc;color:#087b43}
 .current{background:#d7eaff;color:#0755a0}
 .empty{text-align:center;color:#777;padding:18px}
+#loginBox{max-width:400px;margin:60px auto;background:white;padding:25px;border-radius:10px;box-shadow:0 2px 10px #0002}
+#appArea{display:none}
 footer{background:#075c35;color:white;text-align:center;padding:18px;margin-top:25px;font-size:13px;line-height:1.8}
-#loginBox{max-width:420px;margin:70px auto;padding:22px;background:white;border-radius:10px;box-shadow:0 2px 12px #0002}
-#loginBox h2{text-align:center;color:#087b43}
-#loginBox button{width:100%;margin-top:15px}
-#appShell{display:none}
-@media(max-width:500px){nav button{padding:12px 9px;font-size:12px}}
 @media print{nav,form,.no-print,footer{display:none!important}.section{display:block!important}}
 </style>
 </head>
 <body>
 
 <div id="loginBox">
-<h2>REHMAT AZIZ MEDICINE</h2>
-<p style="text-align:center">Admin Login</p>
+<h2 style="color:#087b43;text-align:center">REHMAT AZIZ MEDICINE</h2>
+<h3 style="text-align:center">Admin Login</h3>
 <form id="loginForm">
 <label>Email</label>
-<input id="loginEmail" type="email" value="adminrehmataziz@gmail.com" required>
+<input id="email" type="email" value="adminrehmataziz@gmail.com" required>
 <label>Password</label>
-<input id="loginPassword" type="password" placeholder="Enter your password" required>
-<button type="submit">Login</button>
-<p id="loginMessage" style="color:#b00000;text-align:center"></p>
+<input id="password" type="password" required placeholder="Enter password">
+<button type="submit" style="width:100%">Login</button>
 </form>
 </div>
 
-<div id="appShell">
+<div id="appArea">
 <header>
 <h2>REHMAT AZIZ MEDICINE</h2>
 <p>Medicine Expiry Management System</p>
 <p>7-City Centre, Rahim Yar Khan</p>
 <p>Contact: 0333-6303774</p>
+<button class="logout" id="logoutBtn">Logout</button>
 </header>
 
 <nav>
 <button onclick="show('dashboard')">Dashboard</button>
 <button onclick="show('add')">Add Medicine</button>
 <button onclick="show('reports')">Reports</button>
-<button onclick="logout()">Logout</button>
 </nav>
 
 <div class="container">
+
 <section id="dashboard" class="section active">
 <h3>Expiry Dashboard</h3>
 <div class="cards">
@@ -94,7 +94,7 @@ footer{background:#075c35;color:white;text-align:center;padding:18px;margin-top:
 <h3>Expiry Alerts</h3>
 <div class="table-wrap">
 <table>
-<thead><tr><th>Medicine</th><th>Company</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Status</th></tr></thead>
+<thead><tr><th>Medicine</th><th>Distribution</th><th>Company</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Status</th><th>Action</th></tr></thead>
 <tbody id="alertsTable"></tbody>
 </table>
 </div>
@@ -103,7 +103,7 @@ footer{background:#075c35;color:white;text-align:center;padding:18px;margin-top:
 <h3 style="color:#c00000">Expired Records</h3>
 <div class="table-wrap">
 <table>
-<thead><tr><th>Medicine</th><th>Company</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Status</th></tr></thead>
+<thead><tr><th>Medicine</th><th>Distribution</th><th>Company</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Status</th><th>Action</th></tr></thead>
 <tbody id="expiredTable"></tbody>
 </table>
 </div>
@@ -111,21 +111,34 @@ footer{background:#075c35;color:white;text-align:center;padding:18px;margin-top:
 </section>
 
 <section id="add" class="section">
-<h3>Add Expiry Record</h3>
+<h3>Add Medicine / Expiry Record</h3>
 <form id="expiryForm">
 <label>Medicine Name</label>
 <input id="medicine" required placeholder="Medicine name">
+
+<label>Distribution Name</label>
+<input id="distribution" required placeholder="e.g. Premier Sale Distribution">
+
 <label>Company / Manufacturer</label>
 <input id="company" required placeholder="Company name">
+
 <label>Batch Number</label>
 <input id="batch" required placeholder="Batch number">
+
 <label>Expiry Date</label>
 <input type="date" id="expiry" required>
+
 <label>Expiry Quantity</label>
 <input type="number" id="qty" min="1" required placeholder="Quantity">
+
 <label>Staff Name</label>
-<select id="staff"><option>Owner</option><option>Staff 1</option><option>Staff 2</option></select>
-<button type="submit">Save Expiry Record</button>
+<select id="staff">
+<option>Owner</option>
+<option>Staff 1</option>
+<option>Staff 2</option>
+</select>
+
+<button type="submit">Save Medicine</button>
 </form>
 </section>
 
@@ -133,7 +146,9 @@ footer{background:#075c35;color:white;text-align:center;padding:18px;margin-top:
 <h3>Expiry Reports</h3>
 <div class="panel">
 <label>Company Filter</label>
-<select id="companyFilter" onchange="renderReports()"><option value="All">All Companies</option></select>
+<select id="companyFilter" onchange="renderReports()">
+<option value="All">All Companies</option>
+</select>
 <div class="no-print">
 <button class="blue" onclick="window.print()">Print Report</button>
 <button class="gray" onclick="downloadCSV()">Download CSV</button>
@@ -142,7 +157,7 @@ footer{background:#075c35;color:white;text-align:center;padding:18px;margin-top:
 </div>
 <div class="table-wrap">
 <table>
-<thead><tr><th>Medicine</th><th>Company</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Staff</th><th>Status</th></tr></thead>
+<thead><tr><th>Medicine</th><th>Distribution</th><th>Company</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Staff</th><th>Status</th><th>Action</th></tr></thead>
 <tbody id="reportsTable"></tbody>
 </table>
 </div>
@@ -160,62 +175,58 @@ Developer Contact: 03183410979<br>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+import {initializeApp} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
 import {
- getFirestore, collection, addDoc, getDocs, serverTimestamp
+ getFirestore,collection,addDoc,getDocs,deleteDoc,doc,serverTimestamp
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 import {
- getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut
+ getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
 
-const firebaseConfig = {
- apiKey: "AIzaSyBqKyRPzT-CNL9jCdSQ8ZBPYy7F1LQMOZo",
- authDomain: "rehmat-aziz-medicine-7934f.firebaseapp.com",
- projectId: "rehmat-aziz-medicine-7934f",
- storageBucket: "rehmat-aziz-medicine-7934f.firebasestorage.app",
- messagingSenderId: "1024979731261",
- appId: "1:1024979731261:web:9a5b1c579934514398fb54",
- measurementId: "G-E7JRWPPPY6"
+const firebaseConfig={
+ apiKey:"AIzaSyBqKyRPzT-CNL9jCdSQ8ZBPY7F1LQMOZo",
+ authDomain:"rehmat-aziz-medicine-7934f.firebaseapp.com",
+ projectId:"rehmat-aziz-medicine-7934f",
+ storageBucket:"rehmat-aziz-medicine-7934f.firebasestorage.app",
+ messagingSenderId:"1024979731261",
+ appId:"1:1024979731261:web:9a5b1c579934514398fb54",
+ measurementId:"G-E7JRWPPPY6"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-const medicinesRef = collection(db,"users","admin001","medicines");
-const ADMIN_UID = "MWaZVYeQThPWBquJKGba3AZmRpw1";
-let records = [];
+const ADMIN_UID="MWaZVYeQThPWBquJKGba3AZmRpw1";
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+const auth=getAuth(app);
+const medicinesRef=collection(db,"users","admin001","medicines");
+let records=[];
 
-document.getElementById("loginForm").addEventListener("submit",async function(e){
+document.getElementById("loginForm").addEventListener("submit",async e=>{
  e.preventDefault();
- const email=document.getElementById("loginEmail").value.trim();
- const password=document.getElementById("loginPassword").value;
- const msg=document.getElementById("loginMessage");
- msg.textContent="Logging in...";
  try{
-  await signInWithEmailAndPassword(auth,email,password);
-  msg.textContent="";
+  await signInWithEmailAndPassword(
+   auth,
+   document.getElementById("email").value.trim(),
+   document.getElementById("password").value
+  );
  }catch(error){
+  alert("Login nahi hua. Email aur password check karein.");
   console.error(error);
-  msg.textContent="Login failed. Email ya password check karein.";
  }
 });
 
 onAuthStateChanged(auth,async user=>{
  if(user && user.uid===ADMIN_UID){
   document.getElementById("loginBox").style.display="none";
-  document.getElementById("appShell").style.display="block";
+  document.getElementById("appArea").style.display="block";
   await loadRecords();
  }else{
-  document.getElementById("appShell").style.display="none";
   document.getElementById("loginBox").style.display="block";
-  if(user){
-   await signOut(auth);
-   document.getElementById("loginMessage").textContent="This account is not authorized.";
-  }
+  document.getElementById("appArea").style.display="none";
+  if(user) await signOut(auth);
  }
 });
 
-window.logout=async function(){await signOut(auth);};
+document.getElementById("logoutBtn").addEventListener("click",()=>signOut(auth));
 
 function show(id){
  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
@@ -242,7 +253,17 @@ function esc(value){
 
 function rowHTML(r,staff=false){
  const s=getStatus(r.expiry);
- return `<tr><td>${esc(r.name)}</td><td>${esc(r.company)}</td><td>${esc(r.batch)}</td><td>${esc(r.expiry)}</td><td>${Number(r.qty)||0}</td>${staff?`<td>${esc(r.staff||"")}</td>`:""}<td><span class="status ${s[1]}">${s[0]}</span></td></tr>`;
+ return `<tr>
+ <td>${esc(r.name)}</td>
+ <td>${esc(r.distribution||"")}</td>
+ <td>${esc(r.company)}</td>
+ <td>${esc(r.batch)}</td>
+ <td>${esc(r.expiry)}</td>
+ <td>${Number(r.qty)||0}</td>
+ ${staff?`<td>${esc(r.staff||"")}</td>`:""}
+ <td><span class="status ${s[1]}">${s[0]}</span></td>
+ <td><button class="delete" onclick="deleteMedicine('${r.id}')">Delete</button></td>
+ </tr>`;
 }
 
 function render(){
@@ -256,8 +277,8 @@ function render(){
  document.getElementById("totalQty").textContent=records.reduce((a,r)=>a+(Number(r.qty)||0),0);
  document.getElementById("expiredQty").textContent=expired.reduce((a,r)=>a+(Number(r.qty)||0),0);
  const alerts=records.filter(r=>getStatus(r.expiry)[0]!=="Safe").sort((a,b)=>new Date(a.expiry)-new Date(b.expiry));
- document.getElementById("alertsTable").innerHTML=alerts.length?alerts.map(r=>rowHTML(r)).join(""):'<tr><td colspan="6" class="empty">No expiry alerts found</td></tr>';
- document.getElementById("expiredTable").innerHTML=expired.length?expired.map(r=>rowHTML(r)).join(""):'<tr><td colspan="6" class="empty">No expired records</td></tr>';
+ document.getElementById("alertsTable").innerHTML=alerts.length?alerts.map(r=>rowHTML(r)).join(""):'<tr><td colspan="8" class="empty">No expiry alerts found</td></tr>';
+ document.getElementById("expiredTable").innerHTML=expired.length?expired.map(r=>rowHTML(r)).join(""):'<tr><td colspan="8" class="empty">No expired records</td></tr>';
  updateCompanyFilter();
  renderReports();
 }
@@ -269,13 +290,15 @@ function updateCompanyFilter(){
  filter.innerHTML='<option value="All">All Companies</option>'+companies.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
  filter.value=companies.includes(old)?old:"All";
 }
+
 function getFilteredRecords(){
  const selected=document.getElementById("companyFilter").value;
  return selected==="All"?records:records.filter(r=>r.company===selected);
 }
+
 function renderReports(){
  const list=getFilteredRecords();
- document.getElementById("reportsTable").innerHTML=list.length?list.map(r=>rowHTML(r,true)).join(""):'<tr><td colspan="7" class="empty">No records found</td></tr>';
+ document.getElementById("reportsTable").innerHTML=list.length?list.map(r=>rowHTML(r,true)).join(""):'<tr><td colspan="9" class="empty">No records found</td></tr>';
 }
 window.renderReports=renderReports;
 
@@ -284,49 +307,86 @@ async function loadRecords(){
   const snapshot=await getDocs(medicinesRef);
   records=snapshot.docs.map(d=>{
    const x=d.data();
-   return {id:d.id,name:x.name||"",company:x.company||"",batch:x.batchNO||x.batch||"",expiry:x.expiryDate||x.expiry||"",qty:Number(x.Quantity??x.quantity??x.qty)||0,staff:x.staff||""};
+   return {
+    id:d.id,
+    name:x.name||"",
+    distribution:x.distributionName||"",
+    company:x.company||"",
+    batch:x.batchNO||x.batch||"",
+    expiry:x.expiryDate||x.expiry||"",
+    qty:Number(x.Quantity??x.quantity??x.qty)||0,
+    staff:x.staff||""
+   };
   });
   render();
-  console.log("Loaded records:",records.length);
  }catch(error){
-  console.error("Firestore read failed:",error);
-  alert("Records load nahi hue. Firestore Rules check karein.");
+  console.error(error);
+  alert("Firebase se records load nahi huay. Rules check karein.");
  }
 }
 
 document.getElementById("expiryForm").addEventListener("submit",async function(e){
  e.preventDefault();
- if(!auth.currentUser||auth.currentUser.uid!==ADMIN_UID){alert("Please login first.");return;}
  const record={
   name:document.getElementById("medicine").value.trim(),
+  distribution:document.getElementById("distribution").value.trim(),
   company:document.getElementById("company").value.trim(),
   batch:document.getElementById("batch").value.trim(),
   expiry:document.getElementById("expiry").value,
   qty:Number(document.getElementById("qty").value),
   staff:document.getElementById("staff").value
  };
- if(!record.name||!record.company||!record.batch||!record.expiry||record.qty<1){alert("Please enter all details correctly.");return;}
+ if(!record.name||!record.distribution||!record.company||!record.batch||!record.expiry||record.qty<1){
+  alert("Tamam details bharein.");return;
+ }
  try{
   await addDoc(medicinesRef,{
-   name:record.name,company:record.company,batchNO:record.batch,
-   expiryDate:record.expiry,Quantity:String(record.qty),
-   staff:record.staff,createdAt:serverTimestamp()
+   name:record.name,
+   distributionName:record.distribution,
+   company:record.company,
+   batchNO:record.batch,
+   expiryDate:record.expiry,
+   Quantity:String(record.qty),
+   staff:record.staff,
+   createdAt:serverTimestamp()
   });
   this.reset();
   await loadRecords();
-  alert("Expiry record Firebase mein save ho gaya!");
+  alert("Medicine Firebase mein save ho gayi!");
   show("dashboard");
  }catch(error){
-  console.error("Firestore save failed:",error);
-  alert("Save nahi hua. Firestore Rules check karein.");
+  console.error(error);
+  alert("Firebase mein save nahi hui. Rules check karein.");
  }
 });
+
+window.deleteMedicine=async function(id){
+ const ok=confirm("Kya aap ye medicine record hamesha ke liye delete karna chahte hain?");
+ if(!ok)return;
+ try{
+  await deleteDoc(doc(db,"users","admin001","medicines",id));
+  await loadRecords();
+  alert("Medicine delete ho gayi!");
+ }catch(error){
+  console.error(error);
+  alert("Delete nahi hui. Firebase Rules check karein.");
+ }
+};
 
 function shareWhatsApp(){
  const list=getFilteredRecords();
  if(!list.length){alert("No records available.");return;}
  let message="*REHMAT AZIZ MEDICINE - EXPIRY REPORT*\n\n";
- list.forEach((r,i)=>{message+=(i+1)+". "+r.name+"\nCompany: "+r.company+"\nBatch: "+r.batch+"\nExpiry: "+r.expiry+"\nQuantity: "+r.qty+"\nStaff: "+(r.staff||"")+"\nStatus: "+getStatus(r.expiry)[0]+"\n\n";});
+ list.forEach((r,i)=>{
+  message+=(i+1)+". "+r.name+
+  "\nDistribution: "+(r.distribution||"")+
+  "\nCompany: "+r.company+
+  "\nBatch: "+r.batch+
+  "\nExpiry: "+r.expiry+
+  "\nQuantity: "+r.qty+
+  "\nStaff: "+(r.staff||"")+
+  "\nStatus: "+getStatus(r.expiry)[0]+"\n\n";
+ });
  message+="Total Records: "+list.length+"\n7-City Centre, Rahim Yar Khan\nContact: 0333-6303774";
  window.open("https://wa.me/?text="+encodeURIComponent(message),"_blank");
 }
@@ -335,7 +395,7 @@ window.shareWhatsApp=shareWhatsApp;
 function downloadCSV(){
  const list=getFilteredRecords();
  if(!list.length){alert("No records available.");return;}
- const rows=[["Medicine","Company","Batch Number","Expiry Date","Quantity","Staff","Status"],...list.map(r=>[r.name,r.company,r.batch,r.expiry,r.qty,r.staff||"",getStatus(r.expiry)[0]])];
+ const rows=[["Medicine","Distribution","Company","Batch Number","Expiry Date","Quantity","Staff","Status"],...list.map(r=>[r.name,r.distribution||"",r.company,r.batch,r.expiry,r.qty,r.staff||"",getStatus(r.expiry)[0]])];
  const csv=rows.map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");
  const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
  const url=URL.createObjectURL(blob);
