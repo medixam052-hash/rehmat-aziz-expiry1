@@ -1,235 +1,431 @@
-
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>Rehmat Aziz Medicine - Expiry System</title>
 
 <style>
+
 *{box-sizing:border-box}
+
 body{margin:0;background:#f2f6f3;color:#222;font-family:Arial,sans-serif}
+
 header{background:#087b43;color:white;text-align:center;padding:20px 10px}
+
 header h2{margin:0 0 8px}
+
 header p{margin:4px;font-size:13px}
+
 nav{display:flex;justify-content:center;flex-wrap:wrap;background:#075c35}
+
 nav button{background:transparent;color:white;border:0;padding:14px 16px;cursor:pointer}
+
 nav button:hover{background:#087b43}
+
 .container{max-width:1100px;margin:auto;padding:14px}
+
 .section{display:none}
+
 .section.active{display:block}
+
 h3{color:#087b43}
+
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:12px;margin:15px 0}
+
 .card{background:white;padding:16px 8px;border-radius:9px;text-align:center;border-left:5px solid #087b43;box-shadow:0 2px 7px #0001}
+
 .card p{font-size:13px;margin:0}
+
 .card h2{color:#087b43;margin:8px 0;font-size:25px}
+
 form,.panel{background:white;padding:16px;border-radius:9px;margin:14px 0;box-shadow:0 2px 7px #0001}
+
 label{display:block;font-weight:bold;margin:12px 0 5px}
+
 input,select{width:100%;padding:12px;border:1px solid #ccc;border-radius:6px;font-size:15px}
+
 button{background:#087b43;color:white;border:0;border-radius:6px;padding:11px 14px;margin:4px 2px;cursor:pointer}
+
 button:disabled{opacity:.6;cursor:not-allowed}
+
 .whatsapp{background:#168b45}
+
 .expired-btn{background:#b3261e}
+
 .near-btn{background:#bd8500}
+
 .blue{background:#1769aa}
+
 .gray{background:#555}
+
 .table-wrap{overflow-x:auto;margin:12px 0}
+
 table{width:100%;min-width:850px;border-collapse:collapse;background:white}
+
 th,td{border:1px solid #ddd;padding:10px;text-align:left;font-size:13px}
+
 th{background:#087b43;color:white}
+
 .status{font-weight:bold;padding:5px 8px;border-radius:5px;display:inline-block}
+
 .expired{background:#ffd7d7;color:#b00000}
+
 .warning{background:#fff0b3;color:#805900}
+
 .safe{background:#d4f5dc;color:#087b43}
+
 .current{background:#d7eaff;color:#0755a0}
+
 .empty{text-align:center;color:#777;padding:18px}
+
 footer{background:#075c35;color:white;text-align:center;padding:18px;margin-top:25px;font-size:13px;line-height:1.8}
 
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:#f2f6f3}
+
 .login-card{width:100%;max-width:390px;background:#fff;padding:28px;border-radius:14px;box-shadow:0 5px 24px #0002;text-align:center}
+
 .login-card h2{color:#087b43;margin:0 0 8px}
+
 .login-card p{color:#666;font-size:14px}
+
 .login-card label{text-align:left}
+
 .login-card button{width:100%;margin-top:16px;font-size:16px}
+
 #loginError{color:#b00020;font-size:13px;min-height:18px}
+
 .report-buttons{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0}
+
 @media(max-width:500px){
+
 nav button{padding:12px 9px;font-size:12px}
+
 .report-buttons button{width:100%}
+
 }
+
 @media print{
+
 nav,form,.no-print,footer{display:none!important}
+
 .section{display:block!important}
+
 .panel{box-shadow:none}
+
 }
+
 </style>
+
 </head>
 
 <body>
 
 <section id="loginScreen" class="login-wrap">
+
 <form id="loginForm" class="login-card">
+
 <h2>REHMAT AZIZ MEDICINE</h2>
+
 <p>Admin / Staff Login</p>
+
 <label for="loginEmail">Email</label>
+
 <input id="loginEmail" type="email" value="adminrehmataziz@gmail.com" autocomplete="username" required>
+
 <label for="loginPassword">Password</label>
+
 <input id="loginPassword" type="password" placeholder="Enter your password" autocomplete="current-password" required>
+
 <div id="loginError" role="alert"></div>
+
 <button id="loginButton" type="submit">Login</button>
+
 </form>
+
 </section>
 
 <div id="appShell" style="display:none">
 
 <header>
+
 <h2>REHMAT AZIZ MEDICINE</h2>
+
 <p>Medicine Expiry Management System</p>
+
 <p>7-City Centre, Rahim Yar Khan</p>
+
 <p>Contact: 0333-6303774</p>
+
 </header>
 
 <nav>
+
 <button onclick="show('dashboard')">Dashboard</button>
+
 <button onclick="show('add')">Add Medicine</button>
+
 <button onclick="show('reports')">Reports</button>
+
 <button id="staffNav" onclick="show('staff')" style="display:none">Manage Staff</button>
+
 <button id="logoutButton" style="background:#b3261e">Logout</button>
+
 </nav>
 
 <div class="container">
 
 <section id="dashboard" class="section active">
+
 <h3>Expiry Dashboard</h3>
+
 <div class="cards">
+
 <div class="card"><p>Total Records</p><h2 id="total">0</h2></div>
+
 <div class="card"><p>Expired Records</p><h2 id="expiredCount">0</h2></div>
+
 <div class="card"><p>Expiring Soon</p><h2 id="soonCount">0</h2></div>
+
 <div class="card"><p>Current Month</p><h2 id="currentCount">0</h2></div>
+
 <div class="card"><p>Total Expiry Quantity</p><h2 id="totalQty">0</h2></div>
+
 <div class="card"><p>Expired Quantity</p><h2 id="expiredQty">0</h2></div>
+
 </div>
 
 <div class="panel no-print">
+
 <h3>WhatsApp Expiry Reports</h3>
+
 <div class="report-buttons">
+
 <button class="whatsapp" onclick="shareWhatsApp('all')">WhatsApp Full Report</button>
+
 <button class="expired-btn" onclick="shareWhatsApp('expired')">WhatsApp All Expired</button>
+
 <button class="near-btn" onclick="shareWhatsApp('near')">WhatsApp All Near Expiry</button>
+
 </div>
+
 <button onclick="show('reports')">View All Reports</button>
+
 </div>
 
 <div class="panel">
+
 <h3>Expiry Alerts</h3>
+
 <div class="table-wrap">
+
 <table>
+
 <thead><tr>
+
 <th>Medicine</th><th>Company</th><th>Distribution</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Status</th><th>WhatsApp</th>
+
 </tr></thead>
+
 <tbody id="alertsTable"></tbody>
+
 </table>
+
 </div>
+
 </div>
 
 <div class="panel">
+
 <h3 style="color:#c00000">Expired Records</h3>
+
 <div class="table-wrap">
+
 <table>
+
 <thead><tr>
+
 <th>Medicine</th><th>Company</th><th>Distribution</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Status</th><th>WhatsApp</th>
+
 </tr></thead>
+
 <tbody id="expiredTable"></tbody>
+
 </table>
+
 </div>
+
 </div>
+
 </section>
 
 <section id="add" class="section">
+
 <h3>Add Expiry Record</h3>
+
 <form id="expiryForm">
+
 <label>Medicine Name</label>
+
 <input id="medicine" required placeholder="Medicine name">
+
 <label>Company / Manufacturer</label>
+
 <input id="company" required placeholder="Company name">
+
 <label>Distribution Name</label>
+
 <input id="distribution" required placeholder="e.g. Premier Sale Distribution">
+
 <label>Batch Number</label>
+
 <input id="batch" required placeholder="Batch number">
+
 <label>Expiry Date</label>
+
 <input type="date" id="expiry" required>
+
 <label>Expiry Quantity</label>
+
 <input type="number" id="qty" min="1" required placeholder="Quantity">
+
 <label>Staff Name</label>
+
 <select id="staffSelect">
+
 <option>Owner</option><option>Staff 1</option><option>Staff 2</option>
+
 </select>
+
 <button type="submit">Save Expiry Record</button>
+
 </form>
+
 </section>
 
 <section id="reports" class="section">
+
 <h3>Expiry Reports</h3>
+
 <div class="panel">
+
 <label>Company Filter</label>
+
 <select id="companyFilter" onchange="renderReports()">
+
 <option value="All">All Companies</option>
+
 </select>
+
 <div class="no-print">
+
 <button class="blue" onclick="window.print()">Print Report</button>
+
 <button class="gray" onclick="downloadCSV()">Download CSV</button>
+
 </div>
+
 <h3>Separate WhatsApp Reports</h3>
+
 <div class="report-buttons no-print">
+
 <button class="expired-btn" onclick="shareWhatsApp('expired')">WhatsApp All Expired</button>
+
 <button class="near-btn" onclick="shareWhatsApp('near')">WhatsApp All Near Expiry</button>
+
 <button class="whatsapp" onclick="shareWhatsApp('all')">WhatsApp Full Report</button>
+
 </div>
+
 </div>
+
 <div class="table-wrap">
+
 <table>
+
 <thead><tr>
+
 <th>Medicine</th><th>Company</th><th>Distribution</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Staff</th><th>Status</th><th>WhatsApp</th><th>Action</th>
+
 </tr></thead>
+
 <tbody id="reportsTable"></tbody>
+
 </table>
+
 </div>
+
 </section>
 
 <section id="staff" class="section">
+
 <h3>Manage Staff Accounts</h3>
+
 <div class="panel">
+
 <p>Create staff login accounts here. Share login details privately with each staff member.</p>
+
 <form id="staffForm">
+
 <label>Staff Name</label>
+
 <input id="newStaffName" required placeholder="Staff member name">
+
 <label>Staff Email</label>
+
 <input id="newStaffEmail" type="email" required placeholder="staff@example.com">
+
 <label>Temporary Password</label>
+
 <input id="newStaffPassword" type="password" minlength="6" required placeholder="At least 6 characters">
+
 <button id="createStaffButton" type="submit">Create Staff Account</button>
+
 </form>
+
 </div>
+
 <div class="panel" id="staffListPanel">
+
 <h3>Staff List</h3>
+
 <div class="table-wrap">
+
 <table>
+
 <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Action</th></tr></thead>
+
 <tbody id="staffTable"></tbody>
+
 </table>
+
 </div>
+
 </div>
+
 </section>
 
 </div>
 
 <footer>
+
 <strong>REHMAT AZIZ MEDICINE</strong><br>
+
 7-City Centre, Rahim Yar Khan<br>
+
 Contact: 0333-6303774<br>
+
 Developed By: Sher Usama Ch<br>
+
 Developer Contact: 03183410979<br>
+
 © 2026 All Rights Reserved
+
 </footer>
 
 </div>
@@ -239,49 +435,77 @@ Developer Contact: 03183410979<br>
 import {initializeApp} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
 
 import {
+
 getFirestore,collection,addDoc,getDocs,deleteDoc,doc,
+
 serverTimestamp,getDoc,setDoc,updateDoc
+
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
 
 import {
+
 getAuth,onAuthStateChanged,signInWithEmailAndPassword,
+
 signOut,createUserWithEmailAndPassword
+
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
 
 const firebaseConfig={
+
 apiKey:"AIzaSyBqKyRPzT-CNL9jCdSQ8ZBPYy7F1LQMOZo",
+
 authDomain:"rehmat-aziz-medicine-7934f.firebaseapp.com",
+
 projectId:"rehmat-aziz-medicine-7934f",
+
 storageBucket:"rehmat-aziz-medicine-7934f.firebasestorage.app",
+
 messagingSenderId:"102497973126",
+
 appId:"1:102497973126:web:9a5b1c579934514398fb54",
+
 measurementId:"G-E7JRWPPPY6"
+
 };
 
 const app=initializeApp(firebaseConfig);
+
 const db=getFirestore(app);
+
 const auth=getAuth(app);
 
 const staffApp=initializeApp(firebaseConfig,"RehmatStaffCreator");
+
 const staffCreatorAuth=getAuth(staffApp);
 
 const ADMIN_EMAIL="adminrehmataziz@gmail.com";
+
 const ADMIN_UID="MWaZVYeQThPWBquJKGba3AZmRpw1";
 
 let medicinesRef=null;
+
 let records=[];
+
 let currentRole=null;
+
 let currentStaffName="";
+
 let staffProfiles=[];
 
 /* NAVIGATION */
 
 function show(id){
+
 document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+
 document.getElementById(id).classList.add("active");
+
 render();
+
 if(id==="staff" && currentRole==="admin")loadStaffProfiles();
+
 }
+
 window.show=show;
 
 /* EXPIRY STATUS - UPDATED COLOURS */
@@ -289,6 +513,7 @@ window.show=show;
 function getStatus(date){
 
 const today=new Date();
+
 today.setHours(0,0,0,0);
 
 const expiry=new Date(date+"T00:00:00");
@@ -296,7 +521,9 @@ const expiry=new Date(date+"T00:00:00");
 if(isNaN(expiry.getTime()))return ["Unknown",""];
 
 const months=
+
 (expiry.getFullYear()-today.getFullYear())*12+
+
 (expiry.getMonth()-today.getMonth());
 
 if(months<0)return ["Expired","expired"];
@@ -312,13 +539,21 @@ return ["Green Alert","safe"];
 /* HTML SECURITY */
 
 function esc(value){
+
 return String(value??"").replace(/[&<>"']/g,c=>({
+
 "&":"&amp;",
+
 "<":"&lt;",
+
 ">":"&gt;",
+
 '"':"&quot;",
+
 "'":"&#39;"
+
 }[c]));
+
 }
 
 /* SINGLE WHATSAPP BUTTON */
@@ -328,14 +563,19 @@ function singleWhatsAppButton(r){
 const status=getStatus(r.expiry)[0];
 
 if(status==="Expired"){
+
 return `<button class="expired-btn" onclick="shareSingleWhatsApp('${r.id}')">Expired WhatsApp</button>`;
+
 }
 
 if(["Yellow Alert","Green Alert"].includes(status)){
+
 return `<button class="whatsapp" onclick="shareSingleWhatsApp('${r.id}')">Near Expiry WhatsApp</button>`;
+
 }
 
 return `<span>—</span>`;
+
 }
 
 /* TABLE ROW */
@@ -345,19 +585,33 @@ function rowHTML(r,withStaff=false){
 const s=getStatus(r.expiry);
 
 return `<tr>
+
 <td>${esc(r.name)}</td>
+
 <td>${esc(r.company)}</td>
+
 <td>${esc(r.distribution||"")}</td>
+
 <td>${esc(r.batch)}</td>
+
 <td>${esc(r.expiry)}</td>
+
 <td>${Number(r.qty)||0}</td>
+
 ${withStaff?`<td>${esc(r.staff||"")}</td>`:""}
+
 <td><span class="status ${s[1]}">${s[0]}</span></td>
+
 <td>${singleWhatsAppButton(r)}</td>
+
 ${withStaff&&currentRole==="admin"
+
 ?`<td><button style="background:#b3261e" onclick="deleteRecord('${r.id}')">Delete</button></td>`
+
 :withStaff?`<td>—</td>`:""}
+
 </tr>`;
+
 }
 
 /* DASHBOARD */
@@ -365,30 +619,45 @@ ${withStaff&&currentRole==="admin"
 function render(){
 
 const expired=records.filter(r=>getStatus(r.expiry)[0]==="Expired");
+
 const current=records.filter(r=>getStatus(r.expiry)[0]==="Current Month");
+
 const soon=records.filter(r=>["Green Alert","Yellow Alert"].includes(getStatus(r.expiry)[0]));
 
 document.getElementById("total").textContent=records.length;
+
 document.getElementById("expiredCount").textContent=expired.length;
+
 document.getElementById("soonCount").textContent=soon.length;
+
 document.getElementById("currentCount").textContent=current.length;
+
 document.getElementById("totalQty").textContent=records.reduce((a,r)=>a+(Number(r.qty)||0),0);
+
 document.getElementById("expiredQty").textContent=expired.reduce((a,r)=>a+(Number(r.qty)||0),0);
 
 const alerts=records.filter(r=>getStatus(r.expiry)[0]!=="Safe" && getStatus(r.expiry)[0]!=="Green Alert").sort((a,b)=>new Date(a.expiry)-new Date(b.expiry));
 
 document.getElementById("alertsTable").innerHTML=
+
 alerts.length
+
 ?alerts.map(r=>rowHTML(r)).join("")
+
 :'<tr><td colspan="8" class="empty">No expiry alerts found</td></tr>';
 
 document.getElementById("expiredTable").innerHTML=
+
 expired.length
+
 ?expired.map(r=>rowHTML(r)).join("")
+
 :'<tr><td colspan="8" class="empty">No expired records</td></tr>';
 
 updateCompanyFilter();
+
 renderReports();
+
 }
 
 /* COMPANY FILTER */
@@ -396,14 +665,17 @@ renderReports();
 function updateCompanyFilter(){
 
 const filter=document.getElementById("companyFilter");
+
 const old=filter.value||"All";
 
 const companies=[...new Set(records.map(r=>r.company).filter(Boolean))].sort();
 
 filter.innerHTML='<option value="All">All Companies</option>'+
+
 companies.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
 
 filter.value=companies.includes(old)?old:"All";
+
 }
 
 function getFilteredRecords(){
@@ -411,6 +683,7 @@ function getFilteredRecords(){
 const selected=document.getElementById("companyFilter").value;
 
 return selected==="All"?records:records.filter(r=>r.company===selected);
+
 }
 
 function renderReports(){
@@ -418,8 +691,11 @@ function renderReports(){
 const list=getFilteredRecords();
 
 document.getElementById("reportsTable").innerHTML=
+
 list.length?list.map(r=>rowHTML(r,true)).join("")
+
 :'<tr><td colspan="10" class="empty">No records found</td></tr>';
+
 }
 
 window.renderReports=renderReports;
@@ -433,25 +709,41 @@ try{
 const snapshot=await getDocs(medicinesRef);
 
 records=snapshot.docs.map(d=>{
+
 const x=d.data();
+
 return {
+
 id:d.id,
+
 name:x.name||"",
+
 company:x.company||"",
+
 distribution:x.distributionName||x.distribution||"",
+
 batch:x.batchNO||x.batch||"",
+
 expiry:x.expiryDate||x.expiry||"",
+
 qty:Number(x.Quantity??x.quantity??x.qty)||0,
+
 staff:x.staff||""
+
 };
+
 });
 
 render();
+
 console.log(`Loaded ${records.length} medicine records from Firestore.`);
 
 }catch(error){
+
 console.error("Firestore read failed:",error);
+
 alert("Firebase se records load nahi ho sake. Firestore Rules aur internet connection check karein.");
+
 }
 
 }
@@ -465,41 +757,67 @@ e.preventDefault();
 const staffField=document.getElementById("staffSelect");
 
 const record={
+
 name:document.getElementById("medicine").value.trim(),
+
 company:document.getElementById("company").value.trim(),
+
 distribution:document.getElementById("distribution").value.trim(),
+
 batch:document.getElementById("batch").value.trim(),
+
 expiry:document.getElementById("expiry").value,
+
 qty:Number(document.getElementById("qty").value),
+
 staff:currentRole==="staff"?currentStaffName:(staffField?.value||"Owner")
+
 };
 
 if(!record.name||!record.company||!record.distribution||!record.batch||!record.expiry||record.qty<1){
+
 alert("Please enter all details correctly.");
+
 return;
+
 }
 
 try{
 
 await addDoc(medicinesRef,{
+
 name:record.name,
+
 company:record.company,
+
 distributionName:record.distribution,
+
 batchNO:record.batch,
+
 expiryDate:record.expiry,
+
 Quantity:String(record.qty),
+
 staff:record.staff,
+
 createdAt:serverTimestamp()
+
 });
 
 this.reset();
+
 await loadRecords();
+
 alert("Expiry record Firebase mein successfully save ho gaya!");
+
 show("dashboard");
 
 }catch(error){
+
 console.error("Firestore save failed:",error);
+
 alert("Firebase mein save nahi hua. Firestore Rules check karein.");
+
 }
 
 });
@@ -509,17 +827,25 @@ alert("Firebase mein save nahi hua. Firestore Rules check karein.");
 async function deleteRecord(id){
 
 const record=records.find(r=>r.id===id);
+
 if(!record)return;
 
 if(!confirm(`Kya aap "${record.name}" ka record delete karna chahte hain?`))return;
 
 try{
+
 await deleteDoc(doc(medicinesRef,id));
+
 await loadRecords();
+
 alert("Record delete ho gaya.");
+
 }catch(error){
+
 console.error("Delete failed:",error);
+
 alert("Record delete nahi hua. Firestore Rules check karein.");
+
 }
 
 }
@@ -529,52 +855,85 @@ window.deleteRecord=deleteRecord;
 /* PROFESSIONAL WHATSAPP REPORT */
 
 function openWhatsAppMessage(message){
+
 const url="https://wa.me/?text="+encodeURIComponent(message);
+
 window.open(url,"_blank");
+
 }
 
 function makeExpiryMessage(list,title){
 
 if(!list.length){
+
 alert("Is category mein koi medicine record nahi mila.");
+
 return;
+
 }
 
 const totalQty=list.reduce((sum,r)=>sum+(Number(r.qty)||0),0);
+
 const reportDate=new Date().toLocaleDateString("en-GB");
 
 let message=
+
 "*REHMAT AZIZ MEDICINE*\n"+
+
 "━━━━━━━━━━━━━━━━━━━━\n"+
+
 "*"+title+"*\n"+
+
 "Report Date: "+reportDate+"\n"+
+
 "Total Records: "+list.length+"\n"+
+
 "Total Quantity: "+totalQty+"\n"+
+
 "━━━━━━━━━━━━━━━━━━━━\n\n";
 
 list.forEach((r,i)=>{
+
 const status=getStatus(r.expiry)[0];
+
 message+=
+
 "*"+(i+1)+". "+r.name+"*\n"+
+
 "Company: "+r.company+"\n"+
+
 "Distribution: "+(r.distribution||"-")+"\n"+
+
 "Batch Number: "+r.batch+"\n"+
+
 "Expiry Date: "+r.expiry+"\n"+
+
 "Quantity: "+r.qty+"\n"+
+
 "Staff: "+(r.staff||"-")+"\n"+
+
 "Status: "+status+"\n"+
+
 "────────────────────\n";
+
 });
 
 message+=
+
 "\n*ACTION REQUIRED*\n"+
+
 "Please review the above medicine stock and take the necessary action accordingly.\n\n"+
+
 "*Regards,*\n"+
+
 "*REHMAT AZIZ MEDICINE*\n"+
+
 "7-City Centre, Rahim Yar Khan\n"+
+
 "Contact: 0333-6303774";
 
 openWhatsAppMessage(message);
+
 }
 
 /* SINGLE EXPIRED / NEAR EXPIRY */
@@ -584,23 +943,33 @@ function shareSingleWhatsApp(id){
 const r=records.find(x=>x.id===id);
 
 if(!r){
+
 alert("Medicine record nahi mila.");
+
 return;
+
 }
 
 const status=getStatus(r.expiry)[0];
 
 if(status==="Expired"){
+
 makeExpiryMessage([r],"MEDICINE EXPIRY REPORT");
+
 return;
+
 }
 
 if(["Yellow Alert","Green Alert"].includes(status)){
+
 makeExpiryMessage([r],"MEDICINE EXPIRY REPORT");
+
 return;
+
 }
 
 alert("Ye medicine na Expired hai aur na Near Expiry category mein hai.");
+
 }
 
 window.shareSingleWhatsApp=shareSingleWhatsApp;
@@ -612,18 +981,27 @@ function shareWhatsApp(type="all"){
 let list=getFilteredRecords();
 
 if(type==="expired"){
+
 list=list.filter(r=>getStatus(r.expiry)[0]==="Expired");
+
 makeExpiryMessage(list,"ALL EXPIRED MEDICINES REPORT");
+
 return;
+
 }
 
 if(type==="near"){
+
 list=list.filter(r=>["Yellow Alert","Green Alert"].includes(getStatus(r.expiry)[0]));
+
 makeExpiryMessage(list,"ALL NEAR EXPIRY MEDICINES REPORT");
+
 return;
+
 }
 
 makeExpiryMessage(list,"COMPLETE MEDICINE EXPIRY REPORT");
+
 }
 
 window.shareWhatsApp=shareWhatsApp;
@@ -635,24 +1013,37 @@ function downloadCSV(){
 const list=getFilteredRecords();
 
 if(!list.length){
+
 alert("No records available.");
+
 return;
+
 }
 
 const rows=[
+
 ["Medicine","Company","Distribution Name","Batch Number","Expiry Date","Quantity","Staff","Status"],
+
 ...list.map(r=>[r.name,r.company,r.distribution||"",r.batch,r.expiry,r.qty,r.staff||"",getStatus(r.expiry)[0]])
+
 ];
 
 const csv=rows.map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");
 
 const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+
 const url=URL.createObjectURL(blob);
+
 const a=document.createElement("a");
+
 a.href=url;
+
 a.download="Rehmat-Aziz-Expiry-Report.csv";
+
 a.click();
+
 URL.revokeObjectURL(url);
+
 }
 
 window.downloadCSV=downloadCSV;
@@ -672,22 +1063,37 @@ staffProfiles=snap.docs.map(d=>({uid:d.id,...d.data()}));
 const body=document.getElementById("staffTable");
 
 body.innerHTML=staffProfiles.length
+
 ?staffProfiles.map(s=>`
+
 <tr>
+
 <td>${esc(s.name||"")}</td>
+
 <td>${esc(s.email||"")}</td>
+
 <td>${s.active===true?"Active":"Inactive"}</td>
+
 <td>
+
 <button class="blue" onclick="editStaffName('${s.uid}')">Edit Name</button>
+
 <button onclick="toggleStaff('${s.uid}',${s.active===true?"true":"false"})">${s.active===true?"Deactivate":"Activate"}</button>
+
 </td>
+
 </tr>
+
 `).join("")
+
 :'<tr><td colspan="4">No staff accounts yet</td></tr>';
 
 }catch(error){
+
 console.error(error);
+
 alert("Staff list load nahi hui.");
+
 }
 
 }
@@ -699,18 +1105,27 @@ window.loadStaffProfiles=loadStaffProfiles;
 async function editStaffName(uid){
 
 const staff=staffProfiles.find(s=>s.uid===uid);
+
 if(!staff)return;
 
 const newName=prompt("Naya staff name likhein:",staff.name||"");
+
 if(newName===null||!newName.trim())return;
 
 try{
+
 await updateDoc(doc(db,"staff",uid),{name:newName.trim()});
+
 await loadStaffProfiles();
+
 alert("Staff ka naam change ho gaya!");
+
 }catch(error){
+
 console.error(error);
+
 alert("Naam change nahi hua. Firebase Rules check karein.");
+
 }
 
 }
@@ -724,12 +1139,19 @@ async function toggleStaff(uid,isActive){
 if(currentRole!=="admin")return;
 
 try{
+
 await updateDoc(doc(db,"staff",uid),{active:!isActive});
+
 await loadStaffProfiles();
+
 alert(!isActive?"Staff account active ho gaya.":"Staff account deactivate ho gaya.");
+
 }catch(error){
+
 console.error(error);
+
 alert("Staff status change nahi hua. Firestore Rules check karein.");
+
 }
 
 }
@@ -745,16 +1167,23 @@ e.preventDefault();
 if(currentRole!=="admin")return;
 
 const name=document.getElementById("newStaffName").value.trim();
+
 const email=document.getElementById("newStaffEmail").value.trim().toLowerCase();
+
 const password=document.getElementById("newStaffPassword").value;
+
 const button=document.getElementById("createStaffButton");
 
 if(password.length<6){
+
 alert("Password kam az kam 6 characters ka hona chahiye.");
+
 return;
+
 }
 
 button.disabled=true;
+
 button.textContent="Creating...";
 
 try{
@@ -762,25 +1191,39 @@ try{
 const credential=await createUserWithEmailAndPassword(staffCreatorAuth,email,password);
 
 await setDoc(doc(db,"staff",credential.user.uid),{
+
 name,
+
 email,
+
 role:"staff",
+
 active:true,
+
 createdAt:serverTimestamp()
+
 });
 
 await signOut(staffCreatorAuth);
+
 this.reset();
+
 await loadStaffProfiles();
 
 alert("Staff account ban gaya. Staff ab apni email aur password se login kar sakta hai.");
 
 }catch(error){
+
 console.error(error);
+
 alert("Staff account nahi bana: "+(error.code||error.message||"Unknown error")+". Firebase Authentication mein user check karein.");
+
 }finally{
+
 button.disabled=false;
+
 button.textContent="Create Staff Account";
+
 }
 
 });
@@ -788,30 +1231,45 @@ button.textContent="Create Staff Account";
 /* LOGIN */
 
 const loginForm=document.getElementById("loginForm");
+
 const loginError=document.getElementById("loginError");
+
 const loginButton=document.getElementById("loginButton");
 
 loginForm.addEventListener("submit",async(e)=>{
 
 e.preventDefault();
+
 loginError.textContent="";
 
 const email=document.getElementById("loginEmail").value.trim().toLowerCase();
+
 const password=document.getElementById("loginPassword").value;
 
 loginButton.disabled=true;
+
 loginButton.textContent="Please wait...";
 
 try{
+
 await signInWithEmailAndPassword(auth,email,password);
+
 }catch(error){
+
 console.error("Login failed:",error);
+
 loginError.textContent=error.code==="auth/invalid-credential"
+
 ?"Email ya password ghalat hai. Dobara check karein."
+
 :"Login nahi hua: "+(error.message||error.code);
+
 }finally{
+
 loginButton.disabled=false;
+
 loginButton.textContent="Login";
+
 }
 
 });
@@ -823,12 +1281,17 @@ onAuthStateChanged(auth,async(user)=>{
 if(!user){
 
 currentRole=null;
+
 currentStaffName="";
+
 records=[];
+
 medicinesRef=null;
 
 document.getElementById("appShell").style.display="none";
+
 document.getElementById("loginScreen").style.display="flex";
+
 return;
 
 }
@@ -838,6 +1301,7 @@ try{
 if(user.uid===ADMIN_UID && (user.email||"").toLowerCase()===ADMIN_EMAIL){
 
 currentRole="admin";
+
 currentStaffName="Owner";
 
 }else{
@@ -845,33 +1309,49 @@ currentStaffName="Owner";
 const staffSnap=await getDoc(doc(db,"staff",user.uid));
 
 if(!staffSnap.exists() || staffSnap.data().role!=="staff" || staffSnap.data().active!==true){
+
 alert("Ye staff account active nahi hai. Admin se rabta karein.");
+
 await signOut(auth);
+
 return;
+
 }
 
 currentRole="staff";
+
 currentStaffName=staffSnap.data().name||user.email||"Staff";
 
 }
 
 document.getElementById("loginScreen").style.display="none";
+
 document.getElementById("appShell").style.display="block";
 
 document.getElementById("staffNav").style.display=currentRole==="admin"?"inline-block":"none";
+
 document.getElementById("staffForm").style.display=currentRole==="admin"?"block":"none";
+
 document.getElementById("staffListPanel").style.display=currentRole==="admin"?"block":"none";
 
 const staffSelect=document.getElementById("staffSelect");
 
 if(staffSelect){
+
 if(currentRole==="staff"){
+
 staffSelect.innerHTML=`<option>${esc(currentStaffName)}</option>`;
+
 staffSelect.disabled=true;
+
 }else{
+
 staffSelect.disabled=false;
+
 staffSelect.innerHTML='<option>Owner</option><option>Staff 1</option><option>Staff 2</option>';
+
 }
+
 }
 
 medicinesRef=collection(db,"users",ADMIN_UID,"medicines");
@@ -879,13 +1359,17 @@ medicinesRef=collection(db,"users",ADMIN_UID,"medicines");
 await loadRecords();
 
 if(currentRole==="admin"){
+
 await loadStaffProfiles();
+
 }
 
 }catch(error){
 
 console.error("Access check failed:",error);
+
 alert("Login access check nahi ho saka: "+(error.message||error.code||"Unknown error"));
+
 await signOut(auth);
 
 }
@@ -895,9 +1379,13 @@ await signOut(auth);
 /* LOGOUT */
 
 document.getElementById("logoutButton").addEventListener("click",async()=>{
+
 await signOut(auth);
+
 });
 
 </script>
+
 </body>
+
 </html>
