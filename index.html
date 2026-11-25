@@ -286,6 +286,20 @@ nav,form,.no-print,footer{display:none!important}
 
 <input id="batch" required placeholder="Batch number">
 
+<label>Expiry Return Option</label>
+
+<select id="expiryCategory" required>
+
+<option value="">Select Expiry Option</option>
+
+<option value="6_months">6 Months Wali</option>
+
+<option value="4_months">4 Months Wali</option>
+
+<option value="current_month">Current Month Wali</option>
+
+</select>
+
 <label>Expiry Date</label>
 
 <input type="date" id="expiry" required>
@@ -510,7 +524,7 @@ window.show=show;
 
 /* EXPIRY STATUS - UPDATED COLOURS */
 
-function getStatus(date){
+function getStatus(date,category=""){
 
 const today=new Date();
 
@@ -528,11 +542,15 @@ const months=
 
 if(months<0)return ["Expired","expired"];
 
-if(months===0)return ["Current Month","current"];
+if(months===0 || category==="current_month")return ["Current Month","current"];
 
-if(months<=6)return ["Yellow Alert","warning"];
+if(category==="4_months")return ["4 Months Return","warning"];
 
-return ["Green Alert","safe"];
+if(category==="6_months")return ["6 Months Return","safe"];
+
+if(months<=4)return ["4 Months Return","warning"];
+
+return ["6 Months Return","safe"];
 
 }
 
@@ -560,7 +578,7 @@ return String(value??"").replace(/[&<>"']/g,c=>({
 
 function singleWhatsAppButton(r){
 
-const status=getStatus(r.expiry)[0];
+const status=getStatus(r.expiry,r.expiryCategory)[0];
 
 if(status==="Expired"){
 
@@ -568,7 +586,7 @@ return `<button class="expired-btn" onclick="shareSingleWhatsApp('${r.id}')">Exp
 
 }
 
-if(["Yellow Alert","Green Alert"].includes(status)){
+if(["4 Months Return","6 Months Return"].includes(status)){
 
 return `<button class="whatsapp" onclick="shareSingleWhatsApp('${r.id}')">Near Expiry WhatsApp</button>`;
 
@@ -582,7 +600,7 @@ return `<span>—</span>`;
 
 function rowHTML(r,withStaff=false){
 
-const s=getStatus(r.expiry);
+const s=getStatus(r.expiry,r.expiryCategory);
 
 return `<tr>
 
@@ -618,11 +636,11 @@ ${withStaff&&currentRole==="admin"
 
 function render(){
 
-const expired=records.filter(r=>getStatus(r.expiry)[0]==="Expired");
+const expired=records.filter(r=>getStatus(r.expiry,r.expiryCategory)[0]==="Expired");
 
-const current=records.filter(r=>getStatus(r.expiry)[0]==="Current Month");
+const current=records.filter(r=>getStatus(r.expiry,r.expiryCategory)[0]==="Current Month");
 
-const soon=records.filter(r=>["Green Alert","Yellow Alert"].includes(getStatus(r.expiry)[0]));
+const soon=records.filter(r=>["6 Months Return","4 Months Return"].includes(getStatus(r.expiry,r.expiryCategory)[0]));
 
 document.getElementById("total").textContent=records.length;
 
@@ -636,7 +654,7 @@ document.getElementById("totalQty").textContent=records.reduce((a,r)=>a+(Number(
 
 document.getElementById("expiredQty").textContent=expired.reduce((a,r)=>a+(Number(r.qty)||0),0);
 
-const alerts=records.filter(r=>getStatus(r.expiry)[0]!=="Safe" && getStatus(r.expiry)[0]!=="Green Alert").sort((a,b)=>new Date(a.expiry)-new Date(b.expiry));
+const alerts=records.filter(r=>getStatus(r.expiry,r.expiryCategory)[0]!=="Safe" && getStatus(r.expiry,r.expiryCategory)[0]!=="6 Months Return").sort((a,b)=>new Date(a.expiry)-new Date(b.expiry));
 
 document.getElementById("alertsTable").innerHTML=
 
@@ -728,7 +746,9 @@ expiry:x.expiryDate||x.expiry||"",
 
 qty:Number(x.Quantity??x.quantity??x.qty)||0,
 
-staff:x.staff||""
+staff:x.staff||"",
+
+expiryCategory:x.expiryCategory||""
 
 };
 
@@ -768,13 +788,15 @@ batch:document.getElementById("batch").value.trim(),
 
 expiry:document.getElementById("expiry").value,
 
+expiryCategory:document.getElementById("expiryCategory").value,
+
 qty:Number(document.getElementById("qty").value),
 
 staff:currentRole==="staff"?currentStaffName:(staffField?.value||"Owner")
 
 };
 
-if(!record.name||!record.company||!record.distribution||!record.batch||!record.expiry||record.qty<1){
+if(!record.name||!record.company||!record.distribution||!record.batch||!record.expiry||!record.expiryCategory||record.qty<1){
 
 alert("Please enter all details correctly.");
 
@@ -795,6 +817,8 @@ distributionName:record.distribution,
 batchNO:record.batch,
 
 expiryDate:record.expiry,
+
+expiryCategory:record.expiryCategory,
 
 Quantity:String(record.qty),
 
@@ -894,7 +918,7 @@ let message=
 
 list.forEach((r,i)=>{
 
-const status=getStatus(r.expiry)[0];
+const status=getStatus(r.expiry,r.expiryCategory)[0];
 
 message+=
 
@@ -950,7 +974,7 @@ return;
 
 }
 
-const status=getStatus(r.expiry)[0];
+const status=getStatus(r.expiry,r.expiryCategory)[0];
 
 if(status==="Expired"){
 
@@ -960,7 +984,7 @@ return;
 
 }
 
-if(["Yellow Alert","Green Alert"].includes(status)){
+if(["4 Months Return","6 Months Return"].includes(status)){
 
 makeExpiryMessage([r],"MEDICINE EXPIRY REPORT");
 
@@ -982,7 +1006,7 @@ let list=getFilteredRecords();
 
 if(type==="expired"){
 
-list=list.filter(r=>getStatus(r.expiry)[0]==="Expired");
+list=list.filter(r=>getStatus(r.expiry,r.expiryCategory)[0]==="Expired");
 
 makeExpiryMessage(list,"ALL EXPIRED MEDICINES REPORT");
 
@@ -992,7 +1016,7 @@ return;
 
 if(type==="near"){
 
-list=list.filter(r=>["Yellow Alert","Green Alert"].includes(getStatus(r.expiry)[0]));
+list=list.filter(r=>["4 Months Return","6 Months Return"].includes(getStatus(r.expiry,r.expiryCategory)[0]));
 
 makeExpiryMessage(list,"ALL NEAR EXPIRY MEDICINES REPORT");
 
@@ -1024,7 +1048,7 @@ const rows=[
 
 ["Medicine","Company","Distribution Name","Batch Number","Expiry Date","Quantity","Staff","Status"],
 
-...list.map(r=>[r.name,r.company,r.distribution||"",r.batch,r.expiry,r.qty,r.staff||"",getStatus(r.expiry)[0]])
+...list.map(r=>[r.name,r.company,r.distribution||"",r.batch,r.expiry,r.qty,r.staff||"",getStatus(r.expiry,r.expiryCategory)[0]])
 
 ];
 
