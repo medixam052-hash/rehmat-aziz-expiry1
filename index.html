@@ -329,12 +329,18 @@ nav,form,.no-print,footer{display:none!important}
 <div class="panel">
 
 <label>Company Filter</label>
-
-<select id="companyFilter" onchange="renderReports()">
-
-<option value="All">All Companies</option>
-
+<select id="companyFilter" onchange="renderReports()"><option value="All">All Companies</option></select>
+<label>Single Item Search (Medicine / Batch / Company)</label>
+<input id="reportSearch" type="search" placeholder="Search medicine, batch or company" oninput="renderReports()">
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+ <div><label>Expiry From</label><input type="date" id="dateFrom" onchange="renderReports()"></div>
+ <div><label>Expiry To</label><input type="date" id="dateTo" onchange="renderReports()"></div>
+</div>
+<label>Report Type</label>
+<select id="reportType" onchange="renderReports()">
+ <option value="all">All Records</option><option value="pending">Pending Return</option><option value="returned">Returned to Company</option>
 </select>
+<div class="no-print"><button class="gray" onclick="clearReportFilters()">Clear Filters</button><button class="whatsapp" onclick="enableNotifications()">Enable Notifications</button></div>
 
 <div class="no-print">
 
@@ -364,7 +370,7 @@ nav,form,.no-print,footer{display:none!important}
 
 <thead><tr>
 
-<th>Medicine</th><th>Company</th><th>Distribution</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Staff</th><th>Status</th><th>WhatsApp</th><th>Action</th>
+<th>Medicine</th><th>Company</th><th>Distribution</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Staff</th><th>Status</th><th>Return Status</th><th>WhatsApp</th><th>Action</th>
 
 </tr></thead>
 
@@ -599,37 +605,16 @@ return `<span>—</span>`;
 /* TABLE ROW */
 
 function rowHTML(r,withStaff=false){
-
-const s=getStatus(r.expiry,r.expiryCategory);
-
-return `<tr>
-
-<td>${esc(r.name)}</td>
-
-<td>${esc(r.company)}</td>
-
-<td>${esc(r.distribution||"")}</td>
-
-<td>${esc(r.batch)}</td>
-
-<td>${esc(r.expiry)}</td>
-
-<td>${Number(r.qty)||0}</td>
-
-${withStaff?`<td>${esc(r.staff||"")}</td>`:""}
-
-<td><span class="status ${s[1]}">${s[0]}</span></td>
-
-<td>${singleWhatsAppButton(r)}</td>
-
-${withStaff&&currentRole==="admin"
-
-?`<td><button style="background:#b3261e" onclick="deleteRecord('${r.id}')">Delete</button></td>`
-
-:withStaff?`<td>—</td>`:""}
-
-</tr>`;
-
+ const st=getStatus(r.expiry,r.expiryCategory);
+ return `<tr>
+ <td>${esc(r.name)}</td><td>${esc(r.company)}</td><td>${esc(r.distribution||"")}</td><td>${esc(r.batch)}</td>
+ <td>${esc(r.expiry)}</td><td>${Number(r.qty)||0}</td>
+ ${withStaff?`<td>${esc(r.staff||"")}</td>`:""}
+ <td><span class="status ${st[1]}">${st[0]}</span></td>
+ ${withStaff?`<td>${r.returned?'<span class="status safe">Returned</span>':'<span class="status warning">Pending</span>'}</td>`:""}
+ <td>${singleWhatsAppButton(r)}</td>
+ ${withStaff&&currentRole==="admin"?`<td>${r.returned?'—':`<button class="whatsapp" onclick="markReturned('${r.id}')">Mark Returned</button>`}<button style="background:#b3261e" onclick="deleteRecord('${r.id}')">Delete</button></td>`:withStaff?`<td>—</td>`:""}
+ </tr>`;
 }
 
 /* DASHBOARD */
@@ -675,6 +660,7 @@ expired.length
 updateCompanyFilter();
 
 renderReports();
+sendExpiryNotifications();
 
 }
 
@@ -699,24 +685,40 @@ filter.value=companies.includes(old)?old:"All";
 function getFilteredRecords(){
 
 const selected=document.getElementById("companyFilter").value;
-
 return selected==="All"?records:records.filter(r=>r.company===selected);
 
 }
 
 function renderReports(){
-
-const list=getFilteredRecords();
-
-document.getElementById("reportsTable").innerHTML=
-
-list.length?list.map(r=>rowHTML(r,true)).join("")
-
-:'<tr><td colspan="10" class="empty">No records found</td></tr>';
-
+ let list=getFilteredRecords();
+ const q=(document.getElementById("reportSearch")?.value||"").trim().toLowerCase();
+ const from=document.getElementById("dateFrom")?.value||"";
+ const to=document.getElementById("dateTo")?.value||"";
+ const type=document.getElementById("reportType")?.value||"all";
+ if(q) list=list.filter(r=>[r.name,r.company,r.batch,r.distribution].some(v=>String(v||"").toLowerCase().includes(q)));
+ if(from) list=list.filter(r=>r.expiry>=from);
+ if(to) list=list.filter(r=>r.expiry<=to);
+ if(type==="pending") list=list.filter(r=>!r.returned);
+ if(type==="returned") list=list.filter(r=>r.returned);
+ document.getElementById("reportsTable").innerHTML=list.length?list.map(r=>rowHTML(r,true)).join(""):'<tr><td colspan="11" class="empty">No records found</td></tr>';
 }
-
 window.renderReports=renderReports;
+window.clearReportFilters=function(){['reportSearch','dateFrom','dateTo'].forEach(id=>document.getElementById(id).value='');document.getElementById('companyFilter').value='All';document.getElementById('reportType').value='all';renderReports();};
+window.markReturned=async function(id){
+ const r=records.find(x=>x.id===id); if(!r||r.returned)return;
+ if(!confirm('Is expiry ko company ko returned mark karna hai?'))return;
+ try{await updateDoc(doc(medicinesRef,id),{returned:true,returnedAt:serverTimestamp()});await loadRecords();alert('Returned status save ho gaya.');}
+ catch(e){console.error(e);alert('Return status save nahi hua. Firebase rules check karein.');}
+};
+window.enableNotifications=function(){
+ if(!('Notification' in window)){alert('Is browser mein notifications supported nahi.');return;}
+ Notification.requestPermission().then(p=>alert(p==='granted'?'Notifications enabled.':'Notification permission allow karein.'));
+};
+function sendExpiryNotifications(){
+ if(!('Notification' in window)||Notification.permission!=='granted')return;
+ const pending=records.filter(r=>!r.returned && ['Current Month','4 Months Return','6 Months Return','Expired'].includes(getStatus(r.expiry,r.expiryCategory)[0]));
+ if(pending.length) new Notification('Expiry System: Pending Items',{body:pending.length+' expiry record(s) pending hain. Reports mein Pending Return check karein.'});
+}
 
 /* FIREBASE RECORDS */
 
@@ -748,7 +750,8 @@ qty:Number(x.Quantity??x.quantity??x.qty)||0,
 
 staff:x.staff||"",
 
-expiryCategory:x.expiryCategory||""
+expiryCategory:x.expiryCategory||"",
+returned:x.returned===true
 
 };
 
