@@ -212,6 +212,8 @@ nav,form,.no-print,footer{display:none!important}
 
 <button class="near-btn" onclick="shareWhatsApp('near')">WhatsApp All Near Expiry</button>
 
+<button class="blue" onclick="shareWhatsApp('current')">WhatsApp Current Month (Blue)</button>
+
 </div>
 
 <button onclick="show('reports')">View All Reports</button>
@@ -238,6 +240,13 @@ nav,form,.no-print,footer{display:none!important}
 
 </div>
 
+</div>
+
+<div class="panel">
+<h3 style="color:#0755a0">Current Month Expiry (Blue)</h3>
+<p>Is mahine expire hone wali tamam medicines yahan show hongi.</p>
+<div class="table-wrap"><table><thead><tr><th>Medicine</th><th>Company</th><th>Distribution</th><th>Batch</th><th>Expiry</th><th>Quantity</th><th>Status</th><th>WhatsApp Receipt</th></tr></thead><tbody id="currentTable"></tbody></table></div>
+<div class="no-print"><button class="blue" onclick="shareWhatsApp('current')">WhatsApp Current Month Report</button></div>
 </div>
 
 <div class="panel">
@@ -338,7 +347,7 @@ nav,form,.no-print,footer{display:none!important}
 </div>
 <label>Report Type</label>
 <select id="reportType" onchange="renderReports()">
- <option value="all">All Records</option><option value="pending">Pending Return</option><option value="returned">Returned to Company</option>
+ <option value="all">All Records</option><option value="pending">Pending Return</option><option value="returned">Returned to Company</option><option value="current">Current Month (Blue)</option><option value="near">4 / 6 Months Return</option><option value="expired">Expired</option>
 </select>
 <div class="no-print"><button class="gray" onclick="clearReportFilters()">Clear Filters</button><button class="whatsapp" onclick="enableNotifications()">Enable Notifications</button></div>
 
@@ -358,6 +367,9 @@ nav,form,.no-print,footer{display:none!important}
 
 <button class="near-btn" onclick="shareWhatsApp('near')">WhatsApp All Near Expiry</button>
 
+<button class="blue" onclick="shareWhatsApp('current')">WhatsApp Current Month (Blue)</button>
+<button class="whatsapp" onclick="shareWhatsApp('pending')">WhatsApp Pending Return</button>
+<button class="whatsapp" onclick="shareWhatsApp('returned')">WhatsApp Returned Items</button>
 <button class="whatsapp" onclick="shareWhatsApp('all')">WhatsApp Full Report</button>
 
 </div>
@@ -592,13 +604,19 @@ return `<button class="expired-btn" onclick="shareSingleWhatsApp('${r.id}')">Exp
 
 }
 
+if(status==="Current Month"){
+
+return `<button class="blue" onclick="shareSingleWhatsApp('${r.id}')">Blue Receipt WhatsApp</button>`;
+
+}
+
 if(["4 Months Return","6 Months Return"].includes(status)){
 
 return `<button class="whatsapp" onclick="shareSingleWhatsApp('${r.id}')">Near Expiry WhatsApp</button>`;
 
 }
 
-return `<span>—</span>`;
+return `<button class="whatsapp" onclick="shareSingleWhatsApp('${r.id}')">Item Receipt</button>`;
 
 }
 
@@ -639,7 +657,7 @@ document.getElementById("totalQty").textContent=records.reduce((a,r)=>a+(Number(
 
 document.getElementById("expiredQty").textContent=expired.reduce((a,r)=>a+(Number(r.qty)||0),0);
 
-const alerts=records.filter(r=>getStatus(r.expiry,r.expiryCategory)[0]!=="Safe" && getStatus(r.expiry,r.expiryCategory)[0]!=="6 Months Return").sort((a,b)=>new Date(a.expiry)-new Date(b.expiry));
+const alerts=records.filter(r=>["Current Month","4 Months Return","6 Months Return","Expired"].includes(getStatus(r.expiry,r.expiryCategory)[0])).sort((a,b)=>new Date(a.expiry)-new Date(b.expiry));
 
 document.getElementById("alertsTable").innerHTML=
 
@@ -648,6 +666,10 @@ alerts.length
 ?alerts.map(r=>rowHTML(r)).join("")
 
 :'<tr><td colspan="8" class="empty">No expiry alerts found</td></tr>';
+
+document.getElementById("currentTable").innerHTML=current.length
+?current.sort((a,b)=>String(a.expiry||"").localeCompare(String(b.expiry||""))).map(r=>rowHTML(r)).join("")
+:'<tr><td colspan="8" class="empty">No Current Month (Blue) records found</td></tr>';
 
 document.getElementById("expiredTable").innerHTML=
 
@@ -700,6 +722,10 @@ function renderReports(){
  if(to) list=list.filter(r=>r.expiry<=to);
  if(type==="pending") list=list.filter(r=>!r.returned);
  if(type==="returned") list=list.filter(r=>r.returned);
+ if(type==="current") list=list.filter(r=>getStatus(r.expiry,r.expiryCategory)[0]==="Current Month");
+ if(type==="near") list=list.filter(r=>["4 Months Return","6 Months Return"].includes(getStatus(r.expiry,r.expiryCategory)[0]));
+ if(type==="expired") list=list.filter(r=>getStatus(r.expiry,r.expiryCategory)[0]==="Expired");
+ list.sort((a,b)=>String(a.expiry||"").localeCompare(String(b.expiry||"")));
  document.getElementById("reportsTable").innerHTML=list.length?list.map(r=>rowHTML(r,true)).join(""):'<tr><td colspan="11" class="empty">No records found</td></tr>';
 }
 window.renderReports=renderReports;
@@ -717,7 +743,10 @@ window.enableNotifications=function(){
 function sendExpiryNotifications(){
  if(!('Notification' in window)||Notification.permission!=='granted')return;
  const pending=records.filter(r=>!r.returned && ['Current Month','4 Months Return','6 Months Return','Expired'].includes(getStatus(r.expiry,r.expiryCategory)[0]));
- if(pending.length) new Notification('Expiry System: Pending Items',{body:pending.length+' expiry record(s) pending hain. Reports mein Pending Return check karein.'});
+ if(!pending.length)return;
+ const key='expiryNotice_'+new Date().toISOString().slice(0,10);
+ try{if(sessionStorage.getItem(key)==='shown')return;sessionStorage.setItem(key,'shown');}catch(e){}
+ new Notification('Expiry System: Pending Items',{body:pending.length+' expiry record(s) pending hain. Reports mein Pending Return check karein.'});
 }
 
 /* FIREBASE RECORDS */
@@ -879,88 +908,50 @@ alert("Record delete nahi hua. Firestore Rules check karein.");
 
 window.deleteRecord=deleteRecord;
 
-/* PROFESSIONAL WHATSAPP REPORT */
+/* PRINTABLE EXPIRY RECEIPT + WHATSAPP TEXT */
 
 function openWhatsAppMessage(message){
-
-const url="https://wa.me/?text="+encodeURIComponent(message);
-
-window.open(url,"_blank");
-
+  const url="https://wa.me/?text="+encodeURIComponent(message);
+  window.open(url,"_blank");
 }
 
 function makeExpiryMessage(list,title){
+  if(!list.length){
+    alert("Is category mein koi medicine record nahi mila.");
+    return;
+  }
+  const totalQty=list.reduce((sum,r)=>sum+(Number(r.qty)||0),0);
+  const reportDate=new Date().toLocaleDateString("en-GB");
+  let message="*REHMAT AZIZ MEDICINE*\n━━━━━━━━━━━━━━━━━━━━\n*"+title+"*\nReport Date: "+reportDate+"\nTotal Records: "+list.length+"\nTotal Quantity: "+totalQty+"\n━━━━━━━━━━━━━━━━━━━━\n\n";
+  list.forEach((r,i)=>{
+    const status=getStatus(r.expiry,r.expiryCategory)[0];
+    message+="*"+(i+1)+". "+r.name+"*\nCompany: "+r.company+"\nDistribution: "+(r.distribution||"-")+"\nBatch Number: "+(r.batch||"-")+"\nExpiry Date: "+(r.expiry||"-")+"\nQuantity: "+(Number(r.qty)||0)+"\nStaff: "+(r.staff||"-")+"\nStatus: "+status+"\n────────────────────\n";
+  });
+  message+="\n*ACTION REQUIRED*\nPlease review the above medicine stock and take the necessary action accordingly.\n\n*Regards,*\n*REHMAT AZIZ MEDICINE*\n7-City Centre, Rahim Yar Khan\nContact: 0333-6303774";
 
-if(!list.length){
-
-alert("Is category mein koi medicine record nahi mila.");
-
-return;
-
-}
-
-const totalQty=list.reduce((sum,r)=>sum+(Number(r.qty)||0),0);
-
-const reportDate=new Date().toLocaleDateString("en-GB");
-
-let message=
-
-"*REHMAT AZIZ MEDICINE*\n"+
-
-"━━━━━━━━━━━━━━━━━━━━\n"+
-
-"*"+title+"*\n"+
-
-"Report Date: "+reportDate+"\n"+
-
-"Total Records: "+list.length+"\n"+
-
-"Total Quantity: "+totalQty+"\n"+
-
-"━━━━━━━━━━━━━━━━━━━━\n\n";
-
-list.forEach((r,i)=>{
-
-const status=getStatus(r.expiry,r.expiryCategory)[0];
-
-message+=
-
-"*"+(i+1)+". "+r.name+"*\n"+
-
-"Company: "+r.company+"\n"+
-
-"Distribution: "+(r.distribution||"-")+"\n"+
-
-"Batch Number: "+r.batch+"\n"+
-
-"Expiry Date: "+r.expiry+"\n"+
-
-"Quantity: "+r.qty+"\n"+
-
-"Staff: "+(r.staff||"-")+"\n"+
-
-"Status: "+status+"\n"+
-
-"────────────────────\n";
-
-});
-
-message+=
-
-"\n*ACTION REQUIRED*\n"+
-
-"Please review the above medicine stock and take the necessary action accordingly.\n\n"+
-
-"*Regards,*\n"+
-
-"*REHMAT AZIZ MEDICINE*\n"+
-
-"7-City Centre, Rahim Yar Khan\n"+
-
-"Contact: 0333-6303774";
-
-openWhatsAppMessage(message);
-
+  const rows=list.map((r,i)=>{
+    const status=getStatus(r.expiry,r.expiryCategory)[0];
+    return `<tr><td>${i+1}</td><td>${esc(r.name)}</td><td>${esc(r.company)}</td><td>${esc(r.batch||"-")}</td><td>${esc(r.expiry||"-")}</td><td>${Number(r.qty)||0}</td><td>${esc(status)}</td></tr>`;
+  }).join("");
+  const receipt=window.open("","_blank");
+  if(receipt){
+    receipt.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>
+      body{font-family:Arial,sans-serif;margin:24px;color:#222}.paper{max-width:1000px;margin:auto;border:1px solid #bbb;padding:24px}
+      header{text-align:center;border-bottom:2px solid #168b45;padding-bottom:14px}h1{color:#168b45;margin:0 0 6px;font-size:25px}h2{font-size:19px}
+      .summary{display:flex;gap:20px;flex-wrap:wrap;margin:18px 0} .summary span{padding:9px;background:#eef6ef;border-radius:5px}
+      table{width:100%;border-collapse:collapse;font-size:13px}th,td{border:1px solid #bbb;padding:9px;text-align:left}th{background:#eaf3eb}
+      .actions{max-width:1000px;margin:14px auto;display:flex;gap:10px}button{padding:11px 16px;border:0;border-radius:5px;background:#168b45;color:white;font-weight:bold;cursor:pointer}
+      .wa{background:#167b42}.foot{text-align:center;border-top:1px solid #ccc;margin-top:22px;padding-top:14px}
+      @media print{body{margin:0}.paper{border:0}.actions{display:none}}
+    </style></head><body><div class="paper"><header><h1>REHMAT AZIZ MEDICINE</h1><div>7-City Centre, Rahim Yar Khan | Contact: 0333-6303774</div></header>
+    <h2>${esc(title)}</h2><div class="summary"><span><b>Date:</b> ${reportDate}</span><span><b>Total Records:</b> ${list.length}</span><span><b>Total Quantity:</b> ${totalQty}</span></div>
+    <table><thead><tr><th>#</th><th>Medicine</th><th>Company</th><th>Batch</th><th>Expiry</th><th>Qty</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="foot"><b>Regards, REHMAT AZIZ MEDICINE</b><br>Please review the above medicine stock and take necessary action.</div></div>
+    <div class="actions"><button onclick="window.print()">Print / Save as PDF</button><span style="align-self:center;font-size:13px">PDF WhatsApp par bhejne ke liye Save as PDF karein, phir WhatsApp mein PDF attach karein.</span><button class="wa" onclick='window.open("https://wa.me/?text="+encodeURIComponent(${JSON.stringify(message)}),"_blank")'>WhatsApp Message</button></div></body></html>`);
+    receipt.document.close();
+  } else {
+    alert("Receipt popup block ho gayi. Browser pop-ups allow karein.");
+  }
 }
 
 /* SINGLE EXPIRED / NEAR EXPIRY */
@@ -981,21 +972,21 @@ const status=getStatus(r.expiry,r.expiryCategory)[0];
 
 if(status==="Expired"){
 
-makeExpiryMessage([r],"MEDICINE EXPIRY REPORT");
+makeExpiryMessage([r],"MEDICINE EXPIRY / RETURN RECEIPT");
 
 return;
 
 }
 
-if(["4 Months Return","6 Months Return"].includes(status)){
+if(["Current Month","4 Months Return","6 Months Return"].includes(status)){
 
-makeExpiryMessage([r],"MEDICINE EXPIRY REPORT");
+makeExpiryMessage([r],"MEDICINE EXPIRY / RETURN RECEIPT");
 
 return;
 
 }
 
-alert("Ye medicine na Expired hai aur na Near Expiry category mein hai.");
+makeExpiryMessage([r],"INDIVIDUAL MEDICINE RECEIPT");
 
 }
 
@@ -1027,6 +1018,21 @@ return;
 
 }
 
+if(type==="current"){
+list=list.filter(r=>getStatus(r.expiry,r.expiryCategory)[0]==="Current Month");
+makeExpiryMessage(list,"CURRENT MONTH (BLUE) EXPIRY RECEIPT");
+return;
+}
+if(type==="pending"){
+list=list.filter(r=>!r.returned);
+makeExpiryMessage(list,"PENDING EXPIRY RETURN REPORT");
+return;
+}
+if(type==="returned"){
+list=list.filter(r=>r.returned);
+makeExpiryMessage(list,"RETURNED TO COMPANY REPORT");
+return;
+}
 makeExpiryMessage(list,"COMPLETE MEDICINE EXPIRY REPORT");
 
 }
