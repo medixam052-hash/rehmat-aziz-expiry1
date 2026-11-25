@@ -111,13 +111,21 @@ nav button{padding:12px 9px;font-size:12px}
 }
 
 @media print{
-
-nav,form,.no-print,footer{display:none!important}
-
-.section{display:block!important}
-
-.panel{box-shadow:none}
-
+  body.printing-report *{visibility:hidden!important}
+  body.printing-report #reports,
+  body.printing-report #reports .table-wrap,
+  body.printing-report #reports .table-wrap *{visibility:visible!important}
+  body.printing-report #reports{display:block!important;position:absolute!important;left:0!important;top:0!important;width:100%!important;padding:0!important;margin:0!important}
+  body.printing-report #reports .panel,
+  body.printing-report #reports h3:first-child{display:none!important}
+  body.printing-report #reports .table-wrap{display:block!important;position:static!important;width:100%!important;overflow:visible!important}
+  body.printing-report #reports table{width:100%!important;border-collapse:collapse!important;font-size:10px!important}
+  body.printing-report #reports th,body.printing-report #reports td{border:1px solid #777!important;padding:5px!important;color:#000!important}
+  body.printing-report #reports .status{color:#000!important;background:none!important}
+  body.printing-report #reports .table-wrap td:last-child,
+  body.printing-report #reports .table-wrap th:last-child{display:none!important}
+  body.printing-report header,body.printing-report nav,body.printing-report footer{display:none!important}
+  body.printing-report{background:#fff!important}
 }
 
 </style>
@@ -347,15 +355,16 @@ nav,form,.no-print,footer{display:none!important}
 </div>
 <label>Report Type</label>
 <select id="reportType" onchange="renderReports()">
- <option value="all">All Records</option><option value="pending">Pending Return</option><option value="returned">Returned to Company</option><option value="current">Current Month (Blue)</option><option value="near">4 / 6 Months Return</option><option value="expired">Expired</option>
+ <option value="choose" selected>-- Select Required Report --</option><option value="all">All Records</option><option value="pending">Pending Return</option><option value="returned">Returned to Company</option><option value="current">Current Month (Blue)</option><option value="near">4 / 6 Months Return</option><option value="expired">Expired</option>
 </select>
 <div class="no-print"><button class="gray" onclick="clearReportFilters()">Clear Filters</button><button class="whatsapp" onclick="enableNotifications()">Enable Notifications</button></div>
 
 <div class="no-print">
 
-<button class="blue" onclick="window.print()">Print Report</button>
-
-<button class="gray" onclick="downloadCSV()">Download CSV</button>
+<button class="blue" onclick="printSelectedReport()">Print Selected Report</button>
+<button class="safe" onclick="downloadSelectedPDF()">Download Selected Report PDF</button>
+<button class="whatsapp" onclick="shareSelectedReport()">WhatsApp Selected Report</button>
+<button class="gray" onclick="downloadCSV()">Download Selected Report CSV</button>
 
 </div>
 
@@ -461,6 +470,10 @@ Developer Contact: 03183410979<br>
 </footer>
 
 </div>
+
+<!-- PDF export libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
 
 <script type="module">
 
@@ -711,12 +724,13 @@ return selected==="All"?records:records.filter(r=>r.company===selected);
 
 }
 
-function renderReports(){
+function getSelectedReportRecords(){
  let list=getFilteredRecords();
  const q=(document.getElementById("reportSearch")?.value||"").trim().toLowerCase();
  const from=document.getElementById("dateFrom")?.value||"";
  const to=document.getElementById("dateTo")?.value||"";
- const type=document.getElementById("reportType")?.value||"all";
+ const type=document.getElementById("reportType")?.value||"choose";
+ if(type==="choose") return [];
  if(q) list=list.filter(r=>[r.name,r.company,r.batch,r.distribution].some(v=>String(v||"").toLowerCase().includes(q)));
  if(from) list=list.filter(r=>r.expiry>=from);
  if(to) list=list.filter(r=>r.expiry<=to);
@@ -726,10 +740,63 @@ function renderReports(){
  if(type==="near") list=list.filter(r=>["4 Months Return","6 Months Return"].includes(getStatus(r.expiry,r.expiryCategory)[0]));
  if(type==="expired") list=list.filter(r=>getStatus(r.expiry,r.expiryCategory)[0]==="Expired");
  list.sort((a,b)=>String(a.expiry||"").localeCompare(String(b.expiry||"")));
- document.getElementById("reportsTable").innerHTML=list.length?list.map(r=>rowHTML(r,true)).join(""):'<tr><td colspan="11" class="empty">No records found</td></tr>';
+ return list;
 }
+function renderReports(){
+ const type=document.getElementById("reportType")?.value||"choose";
+ const list=getSelectedReportRecords();
+ const empty=type==="choose"?'Please select the report type above': 'No records found for this report';
+ document.getElementById("reportsTable").innerHTML=list.length?list.map(r=>rowHTML(r,true)).join(''):`<tr><td colspan="11" class="empty">${empty}</td></tr>`;
+}
+window.printSelectedReport=function(){
+ const type=document.getElementById("reportType")?.value||"choose";
+ if(type==="choose"){alert("Pehle report type select karein.");return;}
+ if(!getSelectedReportRecords().length){alert("Is selection mein koi record nahi hai.");return;}
+ document.body.classList.add("printing-report");
+ const cleanup=()=>{document.body.classList.remove("printing-report");window.removeEventListener("afterprint",cleanup);};
+ window.addEventListener("afterprint",cleanup);
+ window.print();
+ setTimeout(cleanup,1500);
+};
+window.downloadSelectedPDF=function(){
+ const type=document.getElementById("reportType")?.value||"choose";
+ if(type==="choose"){alert("Pehle report type select karein.");return;}
+ const list=getSelectedReportRecords();
+ if(!list.length){alert("Is selection mein koi record nahi hai.");return;}
+ if(!window.jspdf || !window.jspdf.jsPDF){
+   alert("PDF library load nahi hui. Internet connection check karein, ya Print Selected Report se Save as PDF karein.");
+   return;
+ }
+ const titles={all:"All Records",pending:"Pending Return",returned:"Returned to Company",current:"Current Month (Blue)",near:"4 / 6 Months Return",expired:"Expired"};
+ const title=titles[type]||"Selected Expiry Report";
+ const {jsPDF}=window.jspdf;
+ const doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
+ const totalQty=list.reduce((sum,r)=>sum+(Number(r.qty)||0),0);
+ const reportDate=new Date().toLocaleDateString("en-GB");
+ doc.setFont("helvetica","bold");doc.setFontSize(17);doc.text("REHMAT AZIZ MEDICINE",148,14,{align:"center"});
+ doc.setFontSize(12);doc.text(title,14,24);
+ doc.setFont("helvetica","normal");doc.setFontSize(9);
+ doc.text("Report Date: "+reportDate,14,31);
+ doc.text("Total Records: "+list.length,80,31);
+ doc.text("Total Quantity: "+totalQty,145,31);
+ const body=list.map((r,i)=>[
+   String(i+1),String(r.name||"-"),String(r.company||"-"),String(r.distribution||"-"),String(r.batch||"-"),String(r.expiry||"-"),String(Number(r.qty)||0),String(r.staff||"-"),String(getStatus(r.expiry,r.expiryCategory)[0]),r.returned?"Returned":"Pending"
+ ]);
+ doc.autoTable({startY:37,head:[["#","Medicine","Company","Distribution","Batch","Expiry","Qty","Staff","Status","Return"]],body,theme:"grid",styles:{fontSize:7,cellPadding:2,overflow:"linebreak"},headStyles:{fillColor:[22,139,69]},margin:{left:10,right:10}});
+ const safeTitle=title.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+ doc.save("Rehmat-Aziz-"+safeTitle+"-"+reportDate.replace(/\//g,"-") + ".pdf");
+};
+
+window.shareSelectedReport=function(){
+ const type=document.getElementById("reportType")?.value||"choose";
+ if(type==="choose"){alert("Pehle report type select karein.");return;}
+ const list=getSelectedReportRecords();
+ if(!list.length){alert("Is selection mein koi record nahi hai.");return;}
+ const names={all:"SELECTED FULL EXPIRY REPORT",pending:"SELECTED PENDING RETURN REPORT",returned:"SELECTED RETURNED ITEMS REPORT",current:"SELECTED CURRENT MONTH (BLUE) REPORT",near:"SELECTED 4 / 6 MONTHS REPORT",expired:"SELECTED EXPIRED REPORT"};
+ makeExpiryMessage(list,names[type]||"SELECTED EXPIRY REPORT");
+};
 window.renderReports=renderReports;
-window.clearReportFilters=function(){['reportSearch','dateFrom','dateTo'].forEach(id=>document.getElementById(id).value='');document.getElementById('companyFilter').value='All';document.getElementById('reportType').value='all';renderReports();};
+window.clearReportFilters=function(){['reportSearch','dateFrom','dateTo'].forEach(id=>document.getElementById(id).value='');document.getElementById('companyFilter').value='All';document.getElementById('reportType').value='choose';renderReports();};
 window.markReturned=async function(id){
  const r=records.find(x=>x.id===id); if(!r||r.returned)return;
  if(!confirm('Is expiry ko company ko returned mark karna hai?'))return;
